@@ -2,6 +2,27 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./app/arrayFunctions.js":
+/*!*******************************!*\
+  !*** ./app/arrayFunctions.js ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   cumSum: () => (/* binding */ cumSum)
+/* harmony export */ });
+function cumSum(arr) {
+  let sum = 0;
+  return arr.reduce((result, currentValue) => {
+    sum += currentValue;
+    result.push(sum);
+    return result;
+  }, []);
+}
+
+/***/ }),
+
 /***/ "./app/scaleBandFacet.js":
 /*!*******************************!*\
   !*** ./app/scaleBandFacet.js ***!
@@ -16,6 +37,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   scaleBandFacet: () => (/* binding */ scaleBandFacet)
 /* harmony export */ });
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/src/index.js");
+/* harmony import */ var _arrayFunctions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./arrayFunctions */ "./app/arrayFunctions.js");
+
 
 
 // facetBandScale returns a function that maps domain values + faceting values to pixel positions
@@ -40,10 +63,13 @@ function scaleBandFacet() {
     facetChangeFromPrevious,
     paddingInner = 0.05,
     paddingOuter = 0.05,
-    paddingFacet = 0.5,
+    facetPaddingMultiplier = 5,
+    nFacetChanges = 0,
     bandwidth,
     domainRangeMap = new Map(),
     domainRangeCenterMap = new Map(),
+    facetRangeArray,
+    // facetRangeMap = new Map(),
     step,
     start,
     stop;
@@ -94,15 +120,30 @@ function scaleBandFacet() {
     facet = _;
     if (facet.length != domain.length) throw new Error("There must be one facet for each domain. Found " + facet.length + " facets and " + domain.length + " domain values");
     facetChangeFromPrevious = facet.map((currentElement, index) => index === 0 ? false : currentElement !== facet[index - 1]);
-    console.log(facet);
-    console.log(facetChangeFromPrevious);
+    nFacetChanges = facetChangeFromPrevious.filter(value => value === true).length;
+    my.buildDomainRangeMap();
+    // console.log(facet);
+    // console.log(facetChangeFromPrevious);
+
     return my;
   };
   my.paddingInner = function (_) {
-    return arguments.length ? (paddingInner = _, my) : paddingInner;
+    if (!arguments.length) return paddingInner;
+    paddingInner = _;
+    my.buildDomainRangeMap();
+    return my;
   };
   my.paddingOuter = function (_) {
-    return arguments.length ? (paddingOuter = _, my) : paddingOuter;
+    if (!arguments.length) return paddingOuter;
+    paddingOuter = _;
+    my.buildDomainRangeMap();
+    return my;
+  };
+  my.facetPaddingMultiplier = function (_) {
+    if (!arguments.length) return facetPaddingMultiplier;
+    facetPaddingMultiplier = _;
+    my.buildDomainRangeMap();
+    return my;
   };
 
   // Read only
@@ -116,48 +157,56 @@ function scaleBandFacet() {
     if (domain === undefined || range === undefined) {
       return my;
     }
-    const rangePixelWidth = stop - start,
-      n = domain.length;
-    const paddingInnerPixels = paddingInner * rangePixelWidth / (n - 1);
-    const paddingOuterPixels = paddingOuter * rangePixelWidth / 2;
-    bandwidth = (rangePixelWidth - 2 * paddingOuterPixels - (n - 1) * paddingInnerPixels) / n;
-    step = bandwidth + paddingInnerPixels;
-    const pixelValues = d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => start + paddingOuterPixels + step * i);
-    const pixelValuesCentered = d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => start + paddingOuterPixels + step * i + bandwidth / 2);
-
-    //prettier-ignore
-    d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => domainRangeMap.set(domain[i], pixelValues[i]));
-    //prettier-ignore
-    d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => domainRangeCenterMap.set(domain[i], pixelValuesCentered[i]));
-
-    // console.log("rangePixelWidth:" + rangePixelWidth);
-    // console.log("paddingInnerPixels:" + paddingInnerPixels);
-    // console.log("paddingOuterPixels:" + paddingOuterPixels);
-    // console.log("bandwidth:" + bandwidth);
-    // console.log("Step:" + step);
-    // console.log("n:" + n);
-    // console.log("pixelValues:" + pixelValues);
-    return my;
-  };
-  my.buildDomainRangeMap = function () {
-    if (domain === undefined || range === undefined) {
-      return my;
+    const rangeWidthPixels = stop - start,
+      nDomains = domain.length;
+    const paddingInnerPixels = paddingInner * rangeWidthPixels / (nDomains - 1);
+    const paddingOuterPixels = paddingOuter * rangeWidthPixels / 2;
+    const paddingFacetPixels = facetPaddingMultiplier * paddingInnerPixels;
+    bandwidth = (rangeWidthPixels - 2 * paddingOuterPixels - paddingInnerPixels * (nDomains - 1 - nFacetChanges) - nFacetChanges * paddingFacetPixels) / nDomains;
+    let paddingInnerFacetIncluded;
+    if (nFacetChanges > 0) {
+      paddingInnerFacetIncluded = facetChangeFromPrevious.map(facetChanged => facetChanged ? paddingFacetPixels : paddingInnerPixels);
+    } else {
+      paddingInnerFacetIncluded = d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(d => paddingInnerPixels);
     }
-    const rangePixelWidth = stop - start,
-      n = domain.length;
-    const paddingInnerPixels = paddingInner * rangePixelWidth / (n - 1);
-    const paddingOuterPixels = paddingOuter * rangePixelWidth / 2;
-    bandwidth = (rangePixelWidth - 2 * paddingOuterPixels - (n - 1) * paddingInnerPixels) / n;
-    step = bandwidth + paddingInnerPixels;
-    const pixelValues = d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => start + paddingOuterPixels + step * i);
-    const pixelValuesCentered = d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => start + paddingOuterPixels + step * i + bandwidth / 2);
+    step = d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => i == 0 ? 0 : bandwidth + paddingInnerFacetIncluded[i]);
+
+    // Since step is different can't just multiply step by i, need to
+
+    const stepCumSum = (0,_arrayFunctions__WEBPACK_IMPORTED_MODULE_1__.cumSum)(step);
+    const pixelValues = d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => start + paddingOuterPixels + stepCumSum[i]);
+    const pixelValuesCentered = d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => start + paddingOuterPixels + stepCumSum[i] + bandwidth / 2);
+
+    // if (facet !== undefined) {
+    //   let facetIndex = 0;
+    //   facetRangeArray = new Array();
+
+    //   for (var i in d3.range(nDomains)) {
+    //     let currentFacet = facet[facetIndex];
+    //     if (i == 0 || facetChangeFromPrevious[i]) {
+    //       facetIndex++;
+    //       const obj = {
+    //         facet: currentFacet,
+    //         type: "start",
+    //         value: pixelValues[i],
+    //       };
+    //       facetRangeArray.push(obj);
+    //     }
+    //     if(facet[i] == facet[i] )
+    //   }
+    //   debugger;
+    // }
+    // const pixelValuesFacet = pixelValues.filter((value, index) => {
+    //   index == 0 || facetChangeFromPrevious[index] == true ? true : false;
+    // });
+    //debugger;
 
     //prettier-ignore
-    d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => domainRangeMap.set(domain[i], pixelValues[i]));
+    d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => domainRangeMap.set(domain[i], pixelValues[i]));
     //prettier-ignore
-    d3__WEBPACK_IMPORTED_MODULE_0__.range(n).map(i => domainRangeCenterMap.set(domain[i], pixelValuesCentered[i]));
+    d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => domainRangeCenterMap.set(domain[i], pixelValuesCentered[i]));
 
-    // console.log("rangePixelWidth:" + rangePixelWidth);
+    // console.log("rangeWidthPixels:" + rangeWidthPixels);
     // console.log("paddingInnerPixels:" + paddingInnerPixels);
     // console.log("paddingOuterPixels:" + paddingOuterPixels);
     // console.log("bandwidth:" + bandwidth);
@@ -34146,6 +34195,38 @@ const data = [{
   type: "multiple"
 }, {
   x: "Patient1",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient2",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient3",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient4",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient5",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient6",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient7",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient8",
+  y: "RAD51",
+  type: "missense"
+}, {
+  x: "Patient1",
   y: "TP53",
   type: "missense"
 }, {
@@ -34182,8 +34263,8 @@ const data = [{
   type: "missense"
 }];
 const xOrder = ["Patient1", "Patient2", "Patient3", "Patient4", "Patient5", "Patient6", "Patient7", "Patient8", "Patient9"];
-const yOrder = ["TP53", "BRCA1", "BRCA2"];
-const yFacets = ["TP53", "HRD", "HRD"];
+const yOrder = ["TP53", "RAD51", "BRCA1", "BRCA2"];
+const yFacets = ["TP53", "HRD", "HRD", "HRD"];
 
 // Create accessors
 const xAccessor = d => d.x;
@@ -34194,6 +34275,7 @@ const typeAccessor = d => d.type;
 const xPadding = 0.05;
 const xPaddingOuter = 0.05;
 const yPadding = 0.05;
+const facetPaddingMultiplier = 5;
 
 // Colour
 const colors = new Map([["missense", "darkgreen"], ["nonsense", "black"]]);
@@ -34275,7 +34357,7 @@ const xScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet
 //.buildDomainRangeMap();
 
 console.log(xScale());
-const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([height - margin.bottom, margin.top]).domain(yOrder).facet(yFacets).paddingInner(yPadding);
+const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([height - margin.bottom, margin.top]).domain(yOrder).facet(yFacets).paddingInner(yPadding).facetPaddingMultiplier(facetPaddingMultiplier);
 
 // const yScale = d3
 //   .scaleBand()

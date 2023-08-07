@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { cumSum } from "./arrayFunctions";
 
 // facetBandScale returns a function that maps domain values + faceting values to pixel positions
 // Works different to typical scales in that total paddingInner is relative to the range
@@ -22,10 +23,13 @@ export function scaleBandFacet() {
     facetChangeFromPrevious,
     paddingInner = 0.05,
     paddingOuter = 0.05,
-    paddingFacet = 0.5,
+    facetPaddingMultiplier = 5,
+    nFacetChanges = 0,
     bandwidth,
     domainRangeMap = new Map(),
     domainRangeCenterMap = new Map(),
+    facetRangeArray,
+    // facetRangeMap = new Map(),
     step,
     start,
     stop;
@@ -97,18 +101,36 @@ export function scaleBandFacet() {
       index === 0 ? false : currentElement !== facet[index - 1]
     );
 
-    console.log(facet);
-    console.log(facetChangeFromPrevious);
+    nFacetChanges = facetChangeFromPrevious.filter(
+      (value) => value === true
+    ).length;
+
+    my.buildDomainRangeMap();
+    // console.log(facet);
+    // console.log(facetChangeFromPrevious);
 
     return my;
   };
 
   my.paddingInner = function (_) {
-    return arguments.length ? ((paddingInner = _), my) : paddingInner;
+    if (!arguments.length) return paddingInner;
+    paddingInner = _;
+    my.buildDomainRangeMap();
+    return my;
   };
 
   my.paddingOuter = function (_) {
-    return arguments.length ? ((paddingOuter = _), my) : paddingOuter;
+    if (!arguments.length) return paddingOuter;
+    paddingOuter = _;
+    my.buildDomainRangeMap();
+    return my;
+  };
+
+  my.facetPaddingMultiplier = function (_) {
+    if (!arguments.length) return facetPaddingMultiplier;
+    facetPaddingMultiplier = _;
+    my.buildDomainRangeMap();
+    return my;
   };
 
   // Read only
@@ -125,75 +147,79 @@ export function scaleBandFacet() {
       return my;
     }
 
-    const rangePixelWidth = stop - start,
-      n = domain.length;
+    const rangeWidthPixels = stop - start,
+      nDomains = domain.length;
 
-    const paddingInnerPixels = (paddingInner * rangePixelWidth) / (n - 1);
-    const paddingOuterPixels = (paddingOuter * rangePixelWidth) / 2;
+    const paddingInnerPixels =
+      (paddingInner * rangeWidthPixels) / (nDomains - 1);
+    const paddingOuterPixels = (paddingOuter * rangeWidthPixels) / 2;
+    const paddingFacetPixels = facetPaddingMultiplier * paddingInnerPixels;
 
     bandwidth =
-      (rangePixelWidth -
+      (rangeWidthPixels -
         2 * paddingOuterPixels -
-        (n - 1) * paddingInnerPixels) /
-      n;
+        paddingInnerPixels * (nDomains - 1 - nFacetChanges) -
+        nFacetChanges * paddingFacetPixels) /
+      nDomains;
 
-    step = bandwidth + paddingInnerPixels;
+    let paddingInnerFacetIncluded;
 
-    const pixelValues = d3
-      .range(n)
-      .map((i) => start + paddingOuterPixels + step * i);
-
-    const pixelValuesCentered = d3
-      .range(n)
-      .map((i) => start + paddingOuterPixels + step * i + bandwidth / 2);
-
-    //prettier-ignore
-    d3.range(n).map((i) => domainRangeMap.set(domain[i], pixelValues[i]));
-    //prettier-ignore
-    d3.range(n).map((i) => domainRangeCenterMap.set(domain[i], pixelValuesCentered[i]));
-
-    // console.log("rangePixelWidth:" + rangePixelWidth);
-    // console.log("paddingInnerPixels:" + paddingInnerPixels);
-    // console.log("paddingOuterPixels:" + paddingOuterPixels);
-    // console.log("bandwidth:" + bandwidth);
-    // console.log("Step:" + step);
-    // console.log("n:" + n);
-    // console.log("pixelValues:" + pixelValues);
-    return my;
-  };
-
-  my.buildDomainRangeMap = function () {
-    if (domain === undefined || range === undefined) {
-      return my;
+    if (nFacetChanges > 0) {
+      paddingInnerFacetIncluded = facetChangeFromPrevious.map((facetChanged) =>
+        facetChanged ? paddingFacetPixels : paddingInnerPixels
+      );
+    } else {
+      paddingInnerFacetIncluded = d3
+        .range(nDomains)
+        .map((d) => paddingInnerPixels);
     }
 
-    const rangePixelWidth = stop - start,
-      n = domain.length;
+    step = d3
+      .range(nDomains)
+      .map((i) => (i == 0 ? 0 : bandwidth + paddingInnerFacetIncluded[i]));
 
-    const paddingInnerPixels = (paddingInner * rangePixelWidth) / (n - 1);
-    const paddingOuterPixels = (paddingOuter * rangePixelWidth) / 2;
-    bandwidth =
-      (rangePixelWidth -
-        2 * paddingOuterPixels -
-        (n - 1) * paddingInnerPixels) /
-      n;
+    // Since step is different can't just multiply step by i, need to
 
-    step = bandwidth + paddingInnerPixels;
+    const stepCumSum = cumSum(step);
 
     const pixelValues = d3
-      .range(n)
-      .map((i) => start + paddingOuterPixels + step * i);
+      .range(nDomains)
+      .map((i) => start + paddingOuterPixels + stepCumSum[i]);
 
     const pixelValuesCentered = d3
-      .range(n)
-      .map((i) => start + paddingOuterPixels + step * i + bandwidth / 2);
+      .range(nDomains)
+      .map((i) => start + paddingOuterPixels + stepCumSum[i] + bandwidth / 2);
+
+    // if (facet !== undefined) {
+    //   let facetIndex = 0;
+    //   facetRangeArray = new Array();
+
+    //   for (var i in d3.range(nDomains)) {
+    //     let currentFacet = facet[facetIndex];
+    //     if (i == 0 || facetChangeFromPrevious[i]) {
+    //       facetIndex++;
+    //       const obj = {
+    //         facet: currentFacet,
+    //         type: "start",
+    //         value: pixelValues[i],
+    //       };
+    //       facetRangeArray.push(obj);
+    //     }
+    //     if(facet[i] == facet[i] )
+    //   }
+    //   debugger;
+    // }
+    // const pixelValuesFacet = pixelValues.filter((value, index) => {
+    //   index == 0 || facetChangeFromPrevious[index] == true ? true : false;
+    // });
+    //debugger;
 
     //prettier-ignore
-    d3.range(n).map((i) => domainRangeMap.set(domain[i], pixelValues[i]));
+    d3.range(nDomains).map((i) => domainRangeMap.set(domain[i], pixelValues[i]));
     //prettier-ignore
-    d3.range(n).map((i) => domainRangeCenterMap.set(domain[i], pixelValuesCentered[i]));
+    d3.range(nDomains).map((i) => domainRangeCenterMap.set(domain[i], pixelValuesCentered[i]));
 
-    // console.log("rangePixelWidth:" + rangePixelWidth);
+    // console.log("rangeWidthPixels:" + rangeWidthPixels);
     // console.log("paddingInnerPixels:" + paddingInnerPixels);
     // console.log("paddingOuterPixels:" + paddingOuterPixels);
     // console.log("bandwidth:" + bandwidth);

@@ -13,6 +13,14 @@ const data = [
   { x: "Patient3", y: "BRCA1", type: "nonsense" },
   { x: "Patient4", y: "BRCA1", type: "nonsense" },
   { x: "Patient5", y: "BRCA1", type: "multiple" },
+  { x: "Patient1", y: "RAD51", type: "missense" },
+  { x: "Patient2", y: "RAD51", type: "missense" },
+  { x: "Patient3", y: "RAD51", type: "missense" },
+  { x: "Patient4", y: "RAD51", type: "missense" },
+  { x: "Patient5", y: "RAD51", type: "missense" },
+  { x: "Patient6", y: "RAD51", type: "missense" },
+  { x: "Patient7", y: "RAD51", type: "missense" },
+  { x: "Patient8", y: "RAD51", type: "missense" },
   { x: "Patient1", y: "TP53", type: "missense" },
   { x: "Patient2", y: "TP53", type: "missense" },
   { x: "Patient3", y: "TP53", type: "missense" },
@@ -36,8 +44,8 @@ const xOrder = [
   "Patient9",
 ];
 
-const yOrder = ["TP53", "BRCA1", "BRCA2"];
-const yFacets = ["TP53", "HRD", "HRD"];
+const yOrder = ["TP53", "RAD51", "BRCA1", "BRCA2"];
+const yFacets = ["TP53", "HRD", "HRD", "HRD"];
 
 // Create accessors
 const xAccessor = (d) => d.x;
@@ -48,6 +56,7 @@ const typeAccessor = (d) => d.type;
 const xPadding = 0.05;
 const xPaddingOuter = 0.05;
 const yPadding = 0.05;
+const facetPaddingMultiplier = 5;
 
 // Colour
 const colors = new Map([
@@ -157,7 +166,8 @@ const yScale = scaleBandFacet()
   .range([height - margin.bottom, margin.top])
   .domain(yOrder)
   .facet(yFacets)
-  .paddingInner(yPadding);
+  .paddingInner(yPadding)
+  .facetPaddingMultiplier(facetPaddingMultiplier);
 
 // const yScale = d3
 //   .scaleBand()
