@@ -2,6 +2,8 @@
 
 ![Static Badge](https://img.shields.io/badge/Experimental-orange)
 ![Static Badge](https://img.shields.io/badge/Not%20Ready%20for%20Use%20-%20red)
+![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/selkamand/BrainlessOncoplot)
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/selkamand/BrainlessOncoplot)
 
 
 BrainlessOncoplot is a D3.js implementation of oncoplots/oncoprints designed to work as a the 'frontend rendering engine' to data processing backends that can be built in several languages (e.g. R/rust). 
