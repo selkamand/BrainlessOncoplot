@@ -82,34 +82,27 @@ const height = window.innerHeight;
 
 //! Constant
 // Tooltip
+  const tooltip = d3
+  .select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0)
 
-// create a tooltip
-// const Tooltip = d3
-//   .select("#div_template")
-//   .append("div")
-//   .style("opacity", 0)
-//   .attr("class", "tooltip")
-//   .style("background-color", "white")
-//   .style("border", "solid")
-//   .style("border-width", "2px")
-//   .style("border-radius", "5px")
-//   .style("padding", "5px");
+const mousemove = function (event, d) {
+  const x = event.pageX;
+  const y = event.pageY;
+  
+  tooltip.style("left", x + "px")
+    .style("top", y + "px")
+    .style("opacity", 1)
+    .html("The exact value of<br>this cell is: " + d.value);
+    tooltip.classed("active", true)
+};
 
-// const mouseover = function (d) {
-//   Tooltip.style("opacity", 1);
-//   d3.select(this).style("stroke", "black").style("opacity", 1);
-// };
-
-// const mousemove = function (d) {
-//   Tooltip.html("The exact value of<br>this cell is: " + d.value)
-//     .style("left", d3.mouse(this)[0] + 70 + "px")
-//     .style("top", d3.mouse(this)[1] + "px");
-// };
-
-// const mouseleave = function (d) {
-//   Tooltip.style("opacity", 0);
-//   d3.select(this).style("stroke", "none").style("opacity", 0.8);
-// };
+const mouseleave = function () {
+  tooltip.style("opacity", 0);
+  tooltip.classed("active", false)
+};
 
 // Create SVG
 const svg = d3
@@ -117,33 +110,6 @@ const svg = d3
   .append("svg")
   .attr("width", width)
   .attr("height", height);
-
-const tooltip = d3
-  .select("body")
-  .append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 1)
-  .html("12")
-  .style("left", 0 + "px")
-  .style("top", 1000 + "px")
-  .style("background-color", "black");
-
-const mouseover = (event) => {
-  //console.log("mouseover");
-  event.target.style.fill = "purple";
-  event.target.style.stroke = "black";
-  event.target.style.strokeWidth = "8pt";
-};
-
-const mousemove = (event) => {
-  console.log("mousemove");
-};
-const mouseleave = (event) => {
-  // console.log("mouseleave");
-  event.target.style.fill = event.target.getAttribute("fill");
-  event.target.style.strokeWidth = event.target.getAttribute("strokeWidth");
-  event.target.style.stroke = event.target.getAttribute("stroke");
-};
 
 // Create Margin Object
 const margin = {
@@ -211,6 +177,7 @@ svg
   .selectAll("rect")
   .data(marks)
   .join("rect")
+  .attr("class", "oncoplot-rect")
   .attr("x", (d) => d.xpos)
   .attr("y", (d) => d.ypos)
   .attr("width", xScale.bandwidth)
@@ -218,7 +185,7 @@ svg
   .attr("fill", (d) => d.color)
   .attr("originalColor", (d) => d.color)
   .attr("rx", 15)
-  .on("mouseover", mouseover)
+  // .on("mouseover", mouseover)
   .on("mousemove", mousemove)
   .on("mouseleave", mouseleave);
 

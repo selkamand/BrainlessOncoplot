@@ -85,7 +85,6 @@ function scaleBandFacet() {
    */
   function my(value, center = false) {
     if (!value) {
-      console.log("Function called without value supplied. Returning function");
       return my;
       //throw new Error("Both 'values' and 'facets' must be supplied.");
     }
@@ -123,9 +122,6 @@ function scaleBandFacet() {
     facetChangeFromPrevious = facet.map((currentElement, index) => index === 0 ? false : currentElement !== facet[index - 1]);
     nFacetChanges = facetChangeFromPrevious.filter(value => value === true).length;
     my.buildDomainRangeMap();
-    // console.log(facet);
-    // console.log(facetChangeFromPrevious);
-
     return my;
   };
   my.paddingInner = function (_) {
@@ -340,19 +336,8 @@ function renderAxisY(selection, yScale, xPos, left = true) {
   const tickBoundingBoxWidth = ticks.node().getBBox().width;
   const facetRectWidth = 100;
   const facetLeftNudge = -tickBoundingBoxWidth - facetRectWidth - 30;
-  console.log("width: " + tickBoundingBoxWidth);
+  // console.log("width: " + tickBoundingBoxWidth);
   const facetGroup = yAxis.selectAll(".facet").data(yScale.facetRangeArray()).join("g").attr("class", "facet").attr("transform", d => `translate(${facetLeftNudge}, ${d.startPosition})`);
-
-  // const facetRect = facetGroup
-  //   .selectAll(".facet-rect")
-  //   .data([null])
-  //   .join("rect")
-  //   .attr("class", "facet-rect")
-  //   .attr("x", 0) // You might need to adjust the x-position based on your needs
-  //   .attr("y", 0) // You might need to adjust the y-position based on your needs
-  //   .attr("width", facetRectWidth) // Adjust the width of the rectangle
-  //   .attr("height", (d) => 100);
-
   const facetRect = facetGroup.append("rect").attr("class", "facet-rect").attr("x", 0) // You might need to adjust the x-position based on your needs
   .attr("y", 0) // You might need to adjust the y-position based on your needs
   .attr("width", facetRectWidth) // Adjust the width of the rectangle
@@ -364,8 +349,6 @@ function renderAxisY(selection, yScale, xPos, left = true) {
   // .attr("y", 0) // Set y-coordinate to the middle
   .attr("text-anchor", "middle") // Align text in the middle
   .attr("dominant-baseline", "middle"); // Align text vertically in the middle
-
-  console.log(yScale.facetRangeArray());
   return yAxis;
 }
 
@@ -34316,53 +34299,20 @@ const height = window.innerHeight;
 
 //! Constant
 // Tooltip
-
-// create a tooltip
-// const Tooltip = d3
-//   .select("#div_template")
-//   .append("div")
-//   .style("opacity", 0)
-//   .attr("class", "tooltip")
-//   .style("background-color", "white")
-//   .style("border", "solid")
-//   .style("border-width", "2px")
-//   .style("border-radius", "5px")
-//   .style("padding", "5px");
-
-// const mouseover = function (d) {
-//   Tooltip.style("opacity", 1);
-//   d3.select(this).style("stroke", "black").style("opacity", 1);
-// };
-
-// const mousemove = function (d) {
-//   Tooltip.html("The exact value of<br>this cell is: " + d.value)
-//     .style("left", d3.mouse(this)[0] + 70 + "px")
-//     .style("top", d3.mouse(this)[1] + "px");
-// };
-
-// const mouseleave = function (d) {
-//   Tooltip.style("opacity", 0);
-//   d3.select(this).style("stroke", "none").style("opacity", 0.8);
-// };
+const tooltip = d3__WEBPACK_IMPORTED_MODULE_0__.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+const mousemove = function (event, d) {
+  const x = event.pageX;
+  const y = event.pageY;
+  tooltip.style("left", x + "px").style("top", y + "px").style("opacity", 1).html("The exact value of<br>this cell is: " + d.value);
+  tooltip.classed("active", true);
+};
+const mouseleave = function () {
+  tooltip.style("opacity", 0);
+  tooltip.classed("active", false);
+};
 
 // Create SVG
 const svg = d3__WEBPACK_IMPORTED_MODULE_0__.select("body").append("svg").attr("width", width).attr("height", height);
-const tooltip = d3__WEBPACK_IMPORTED_MODULE_0__.select("body").append("div").attr("class", "tooltip").style("opacity", 1).html("12").style("left", 0 + "px").style("top", 1000 + "px").style("background-color", "black");
-const mouseover = event => {
-  //console.log("mouseover");
-  event.target.style.fill = "purple";
-  event.target.style.stroke = "black";
-  event.target.style.strokeWidth = "8pt";
-};
-const mousemove = event => {
-  console.log("mousemove");
-};
-const mouseleave = event => {
-  // console.log("mouseleave");
-  event.target.style.fill = event.target.getAttribute("fill");
-  event.target.style.strokeWidth = event.target.getAttribute("strokeWidth");
-  event.target.style.stroke = event.target.getAttribute("stroke");
-};
 
 // Create Margin Object
 const margin = {
@@ -34410,7 +34360,9 @@ const yAxis = d3__WEBPACK_IMPORTED_MODULE_0__.axisLeft(yScale);
 //   .call(yAxis);
 
 // draw marks
-svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marks).join("rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15).on("mouseover", mouseover).on("mousemove", mousemove).on("mouseleave", mouseleave);
+svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marks).join("rect").attr("class", "oncoplot-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15)
+// .on("mouseover", mouseover)
+.on("mousemove", mousemove).on("mouseleave", mouseleave);
 
 // svg
 //   .selectAll(".debugcircle")

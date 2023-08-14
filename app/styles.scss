@@ -25,15 +25,37 @@
   }
 
   .facet-rect:hover {
-    cursor: pointer; // Change cursor on hover for better UX
+   fill: #DA4567;
+  }
+  
+  .oncoplot-rect:hover{
+    //fill: #DA4567;
+    stroke:#1a0811;
+    stroke-width: 10px;
+    transform: scale(1.05)
+  }
+  .oncoplot-rect{
+    transform-origin: center; /* or transform-origin: 50% */
+    transform-box: fill-box;
+    transition: all 0.1s;
   }
 
   .tooltip {
     position: absolute;
-    background-color: #333;
-    color: white;
-    padding: 5px;
-    border-radius: 3px;
-    font-size: 12px;
-    display: none; // Hide initially
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    color: #fff; /* White text color */
+    padding: 8px; /* Increased padding for better appearance */
+    border-radius: 5px;
+    pointer-events: none;
+    font-size: 14px;
+    opacity: 0; /* Start with opacity set to 0 for the animation */
+    transition: opacity 0.6s, transform 0.6s; /* Apply opacity and transform animations */
+    transform: translateY(40px); /* Initial position above element */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Drop shadow */
   }
+  
+  .tooltip.active {
+    opacity: 1; /* Show tooltip with animation */
+    transform: translateY(0); /* Move tooltip down to its original position */
+  }
+  

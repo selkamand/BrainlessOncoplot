@@ -44,7 +44,6 @@ export function scaleBandFacet() {
    */
   function my(value, center = false) {
     if (!value) {
-      console.log("Function called without value supplied. Returning function");
       return my;
       //throw new Error("Both 'values' and 'facets' must be supplied.");
     }
@@ -106,8 +105,7 @@ export function scaleBandFacet() {
     ).length;
 
     my.buildDomainRangeMap();
-    // console.log(facet);
-    // console.log(facetChangeFromPrevious);
+
 
     return my;
   };
@@ -414,7 +412,7 @@ export function renderAxisY(selection, yScale, xPos, left = true) {
   const tickBoundingBoxWidth = ticks.node().getBBox().width;
   const facetRectWidth = 100;
   const facetLeftNudge = -tickBoundingBoxWidth - facetRectWidth - 30;
-  console.log("width: " + tickBoundingBoxWidth);
+  // console.log("width: " + tickBoundingBoxWidth);
   const facetGroup = yAxis
     .selectAll(".facet")
     .data(yScale.facetRangeArray())
@@ -424,16 +422,6 @@ export function renderAxisY(selection, yScale, xPos, left = true) {
       "transform",
       (d) => `translate(${facetLeftNudge}, ${d.startPosition})`
     );
-
-  // const facetRect = facetGroup
-  //   .selectAll(".facet-rect")
-  //   .data([null])
-  //   .join("rect")
-  //   .attr("class", "facet-rect")
-  //   .attr("x", 0) // You might need to adjust the x-position based on your needs
-  //   .attr("y", 0) // You might need to adjust the y-position based on your needs
-  //   .attr("width", facetRectWidth) // Adjust the width of the rectangle
-  //   .attr("height", (d) => 100);
 
   const facetRect = facetGroup
     .append("rect")
@@ -453,7 +441,5 @@ export function renderAxisY(selection, yScale, xPos, left = true) {
     // .attr("y", 0) // Set y-coordinate to the middle
     .attr("text-anchor", "middle") // Align text in the middle
     .attr("dominant-baseline", "middle"); // Align text vertically in the middle
-
-  console.log(yScale.facetRangeArray());
   return yAxis;
 }
