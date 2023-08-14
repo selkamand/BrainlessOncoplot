@@ -1,0 +1,39 @@
+.facet-text  {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 20px;
+    fill: #000000; /* Text color */
+    /* Add other styling properties as needed */
+  }
+  
+  .y-axis-tick-text {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 20px;
+    fill: #000000; /* Text color */
+    /* Add other styling properties as needed */
+  }
+
+  .x-axis-tick-text {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 20px;
+    fill: #000000; /* Text color */
+    /* Add other styling properties as needed */
+  }
+
+  .facet-rect {
+    fill: #ccc; // Grey background color
+    /* Add other styling properties as needed */
+  }
+
+  .facet-rect:hover {
+    cursor: pointer; // Change cursor on hover for better UX
+  }
+
+  .tooltip {
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    display: none; // Hide initially
+  }

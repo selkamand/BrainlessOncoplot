@@ -32,3 +32,5 @@ examplar input to create this step array is as follows:
 facetChangeFromPrevious
 
 step = bandwidth + { if facet-change  paddingInnerPixels or if not-facetchange paddingFacetPixels }
+
+Then we need to cumulatively sum step, 

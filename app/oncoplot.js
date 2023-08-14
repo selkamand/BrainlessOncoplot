@@ -150,7 +150,7 @@ const margin = {
   top: 20,
   right: 20,
   bottom: 60,
-  left: 60,
+  left: 200,
 };
 
 const xScale = scaleBandFacet()
@@ -204,6 +204,10 @@ renderAxisY(svg, yScale, margin.left, true);
 
 // draw marks
 svg
+  .selectAll(".oncoplot-tiles")
+  .data([null])
+  .join("g")
+  .attr("class", "oncoplot-tiles")
   .selectAll("rect")
   .data(marks)
   .join("rect")

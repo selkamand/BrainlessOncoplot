@@ -69,6 +69,7 @@ function scaleBandFacet() {
     domainRangeMap = new Map(),
     domainRangeCenterMap = new Map(),
     facetRangeArray,
+    //  facet, startPosition, endPosition, rectHeight,
     // facetRangeMap = new Map(),
     step,
     start,
@@ -177,42 +178,25 @@ function scaleBandFacet() {
     const pixelValues = d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => start + paddingOuterPixels + stepCumSum[i]);
     const pixelValuesCentered = d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => start + paddingOuterPixels + stepCumSum[i] + bandwidth / 2);
 
-    // if (facet !== undefined) {
-    //   let facetIndex = 0;
-    //   facetRangeArray = new Array();
-
-    //   for (var i in d3.range(nDomains)) {
-    //     let currentFacet = facet[facetIndex];
-    //     if (i == 0 || facetChangeFromPrevious[i]) {
-    //       facetIndex++;
-    //       const obj = {
-    //         facet: currentFacet,
-    //         type: "start",
-    //         value: pixelValues[i],
-    //       };
-    //       facetRangeArray.push(obj);
-    //     }
-    //     if(facet[i] == facet[i] )
-    //   }
-    //   debugger;
-    // }
-    // const pixelValuesFacet = pixelValues.filter((value, index) => {
-    //   index == 0 || facetChangeFromPrevious[index] == true ? true : false;
-    // });
-    //debugger;
+    // Create
+    if (facet !== undefined) {
+      facetRangeArray = new Array();
+      for (var currentFacet of [...new Set(facet)]) {
+        let facetStartPosition = pixelValues[facet.indexOf(currentFacet)];
+        let facetEndPosition = pixelValues[facet.lastIndexOf(currentFacet)] + bandwidth;
+        facetRangeArray.push({
+          facet: currentFacet,
+          startPosition: facetStartPosition,
+          endPosition: facetEndPosition,
+          rectHeight: facetEndPosition - facetStartPosition
+        });
+      }
+    }
 
     //prettier-ignore
     d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => domainRangeMap.set(domain[i], pixelValues[i]));
     //prettier-ignore
     d3__WEBPACK_IMPORTED_MODULE_0__.range(nDomains).map(i => domainRangeCenterMap.set(domain[i], pixelValuesCentered[i]));
-
-    // console.log("rangeWidthPixels:" + rangeWidthPixels);
-    // console.log("paddingInnerPixels:" + paddingInnerPixels);
-    // console.log("paddingOuterPixels:" + paddingOuterPixels);
-    // console.log("bandwidth:" + bandwidth);
-    // console.log("Step:" + step);
-    // console.log("n:" + n);
-    // console.log("pixelValues:" + pixelValues);
     return my;
   };
   my.start = function () {
@@ -239,7 +223,9 @@ function scaleBandFacet() {
     }
     return ret;
   };
-
+  my.facetRangeArray = function () {
+    return facetRangeArray;
+  };
   // Return 'my' function which contains all the getter and setter methods that in turn return the my function.
   // This allows method chaining and is only possible because in javascript functions are objects
   return my;
@@ -308,7 +294,7 @@ function renderAxisX(selection, xScale, yPos, bottom = true, rotateLabels = fals
   tickMarks.attr("y2", tickLength);
 
   // Append the tick labels (text) to the ticks and configure rotation and position
-  const tickText = ticks.append("text").attr("fill", "currentColor").attr("text-anchor", textAnchor).attr("dominant-baseline", dominantBaseline).attr("transform", `rotate(${rotate}, 0, 0)`).attr(tickNudgeAxis, tickTextNudgeAmount).text(d => d.key);
+  const tickText = ticks.append("text").attr("class", "x-axis-tick-text").attr("fill", "currentColor").attr("text-anchor", textAnchor).attr("dominant-baseline", dominantBaseline).attr("transform", `rotate(${rotate}, 0, 0)`).attr(tickNudgeAxis, tickTextNudgeAmount).text(d => d.key);
   return xAxis;
 }
 
@@ -324,6 +310,7 @@ function renderAxisX(selection, xScale, yPos, bottom = true, rotateLabels = fals
 function renderAxisY(selection, yScale, xPos, left = true) {
   const tickLengthBase = 6;
   const tickMarkAndTextPadding = 4;
+  const facetNudgeX = -100;
   let tickLength = left ? -tickLengthBase : tickLengthBase;
   let textAnchor = left ? "end" : "start"; // Updated textAnchor based on left parameter
   let tickTextNudgeAmount = tickLength + Math.sign(tickLength) * tickMarkAndTextPadding;
@@ -347,7 +334,38 @@ function renderAxisY(selection, yScale, xPos, left = true) {
   tickMarks.attr("x2", tickLength);
 
   // Append the tick labels (text) to the ticks and configure position
-  const tickText = ticks.append("text").attr("fill", "currentColor").attr("text-anchor", textAnchor).attr("dominant-baseline", "middle").attr("x", tickTextNudgeAmount).text(d => d.key);
+  const tickText = ticks.append("text").attr("class", "y-axis-tick-text").attr("fill", "currentColor").attr("text-anchor", textAnchor).attr("dominant-baseline", "middle").attr("x", tickTextNudgeAmount).text(d => d.key);
+
+  // Add facet rectangles and text
+  const tickBoundingBoxWidth = ticks.node().getBBox().width;
+  const facetRectWidth = 100;
+  const facetLeftNudge = -tickBoundingBoxWidth - facetRectWidth - 30;
+  console.log("width: " + tickBoundingBoxWidth);
+  const facetGroup = yAxis.selectAll(".facet").data(yScale.facetRangeArray()).join("g").attr("class", "facet").attr("transform", d => `translate(${facetLeftNudge}, ${d.startPosition})`);
+
+  // const facetRect = facetGroup
+  //   .selectAll(".facet-rect")
+  //   .data([null])
+  //   .join("rect")
+  //   .attr("class", "facet-rect")
+  //   .attr("x", 0) // You might need to adjust the x-position based on your needs
+  //   .attr("y", 0) // You might need to adjust the y-position based on your needs
+  //   .attr("width", facetRectWidth) // Adjust the width of the rectangle
+  //   .attr("height", (d) => 100);
+
+  const facetRect = facetGroup.append("rect").attr("class", "facet-rect").attr("x", 0) // You might need to adjust the x-position based on your needs
+  .attr("y", 0) // You might need to adjust the y-position based on your needs
+  .attr("width", facetRectWidth) // Adjust the width of the rectangle
+  .attr("height", d => d.rectHeight);
+  const facetText = facetGroup.append("text").text(d => d.facet) // Set the text content
+  .attr("class", "facet-text").attr("x", facetRectWidth / 2) // Set x-coordinate to the middle
+  .attr("y", d => d.rectHeight / 2) // Set y-coordinate to the middle
+  // .attr("x", 0) // Set x-coordinate to the middle
+  // .attr("y", 0) // Set y-coordinate to the middle
+  .attr("text-anchor", "middle") // Align text in the middle
+  .attr("dominant-baseline", "middle"); // Align text vertically in the middle
+
+  console.log(yScale.facetRangeArray());
   return yAxis;
 }
 
@@ -34351,7 +34369,7 @@ const margin = {
   top: 20,
   right: 20,
   bottom: 60,
-  left: 60
+  left: 200
 };
 const xScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([margin.left, width - margin.right]).domain(xOrder).paddingInner(xPadding).paddingOuter(xPaddingOuter);
 //.buildDomainRangeMap();
@@ -34392,7 +34410,7 @@ const yAxis = d3__WEBPACK_IMPORTED_MODULE_0__.axisLeft(yScale);
 //   .call(yAxis);
 
 // draw marks
-svg.selectAll("rect").data(marks).join("rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15).on("mouseover", mouseover).on("mousemove", mousemove).on("mouseleave", mouseleave);
+svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marks).join("rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15).on("mouseover", mouseover).on("mousemove", mousemove).on("mouseleave", mouseleave);
 
 // svg
 //   .selectAll(".debugcircle")
