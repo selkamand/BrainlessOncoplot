@@ -95,7 +95,7 @@ const mousemove = function (event, d) {
   tooltip.style("left", x + "px")
     .style("top", y + "px")
     .style("opacity", 1)
-    .html("The exact value of<br>this cell is: " + d.value);
+    .html(d.tooltip);
     tooltip.classed("active", true)
 };
 
@@ -147,6 +147,9 @@ const marks = data.map((d) => ({
   xpos: xScale(xAccessor(d)),
   ypos: yScale(yAccessor(d)),
   color: getColor(typeAccessor(d)),
+  // sample: xAccessor(d),
+  // gene: yAccessor(d)
+  tooltip: [xAccessor(d), yAccessor(d)].join(" - "),
 }));
 
 console.log(marks);
@@ -186,7 +189,7 @@ svg
   .attr("originalColor", (d) => d.color)
   .attr("rx", 15)
   // .on("mouseover", mouseover)
-  .on("mousemove", mousemove)
+  .on("mousemove", mousemove, )
   .on("mouseleave", mouseleave);
 
 // svg

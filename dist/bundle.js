@@ -34303,7 +34303,7 @@ const tooltip = d3__WEBPACK_IMPORTED_MODULE_0__.select("body").append("div").att
 const mousemove = function (event, d) {
   const x = event.pageX;
   const y = event.pageY;
-  tooltip.style("left", x + "px").style("top", y + "px").style("opacity", 1).html("The exact value of<br>this cell is: " + d.value);
+  tooltip.style("left", x + "px").style("top", y + "px").style("opacity", 1).html(d.tooltip);
   tooltip.classed("active", true);
 };
 const mouseleave = function () {
@@ -34338,7 +34338,10 @@ const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet
 const marks = data.map(d => ({
   xpos: xScale(xAccessor(d)),
   ypos: yScale(yAccessor(d)),
-  color: getColor(typeAccessor(d))
+  color: getColor(typeAccessor(d)),
+  // sample: xAccessor(d),
+  // gene: yAccessor(d)
+  tooltip: [xAccessor(d), yAccessor(d)].join(" - ")
 }));
 console.log(marks);
 
