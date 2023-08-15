@@ -57,6 +57,21 @@ const tmb = [
 ];
 
 
+const annotations = [
+  { x: "Patient1", annotationType1: "Annotation A", annotationType2: "Annotation X", numericAnnotation: 3.5 },
+  { x: "Patient2", annotationType1: "Annotation B", annotationType2: "Annotation Y", numericAnnotation: 2.1 },
+  { x: "Patient3", annotationType1: "Annotation A", annotationType2: "Annotation Z", numericAnnotation: 4.7 },
+  { x: "Patient4", annotationType1: "Annotation C", annotationType2: "Annotation W", numericAnnotation: 1.9 },
+  { x: "Patient5", annotationType1: "Annotation B", annotationType2: "Annotation V", numericAnnotation: 6.3 },
+  { x: "Patient6", annotationType1: "Annotation D", annotationType2: "Annotation U", numericAnnotation: 2.8 },
+  { x: "Patient7", annotationType1: "Annotation A", annotationType2: "Annotation T", numericAnnotation: 5.2 },
+  { x: "Patient8", annotationType1: "Annotation E", annotationType2: "Annotation S", numericAnnotation: 3.0 },
+  { x: "Patient9", annotationType1: "Annotation D", annotationType2: "Annotation R", numericAnnotation: 7.1 },
+];
+
+// Confidence level: high
+
+
 const yOrder = ["TP53", "RAD51", "BRCA1", "BRCA2"];
 const yFacets = ["TP53", "HRD", "HRD", "HRD"];
 
@@ -208,12 +223,8 @@ const marks = data.map((d) => ({
   tooltip: [xAccessor(d), yAccessor(d)].join(" - "),
 }));
 
-// console.log(marks);
 
 // // Render axes
-// // // Create Axes From scales (e.g. using d3.scaleLinear())
-// // const xAxis = d3.axisBottom(xScale);
-// // const yAxis = d3.axisLeft(yScale);e)
 renderAxisX(svg, xScale, xLayout.oncoplotPosEndY, showSampleNames, true, true);
 renderAxisY(svg, yScale, yLayout.oncoplotPosStartX, yLayout.facetWidth, yLayout.yTextAndTickWidth, true);
 
