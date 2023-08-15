@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { cumSum } from "./arrayFunctions";
+import {longestString, getTextWidth, getCanvasFont} from "./utils"
 
 // facetBandScale returns a function that maps domain values + faceting values to pixel positions
 // Works different to typical scales in that total paddingInner is relative to the range
@@ -32,7 +33,9 @@ export function scaleBandFacet() {
     // facetRangeMap = new Map(),
     step,
     start,
-    stop;
+    stop,
+    tickLength = 6,
+    tickMarkAndTextPadding = 4;
 
   /**
    * Take a single domain value and return a matched pixel position based on range and padding settings.
@@ -242,6 +245,14 @@ export function scaleBandFacet() {
     return ret;
   };
 
+  my.tickLength = function (_) {
+    return arguments.length ? ((tickLength = _), my) : tickLength;
+  };
+
+  my.tickMarkAndTextPadding = function (_) {
+    return arguments.length ? ((tickMarkAndTextPadding = _), my) : tickMarkAndTextPadding;
+  };
+
   my.facetRangeArray = function () {
     return facetRangeArray;
   };
@@ -249,12 +260,6 @@ export function scaleBandFacet() {
   // This allows method chaining and is only possible because in javascript functions are objects
   return my;
 }
-
-const scaleBandFacetAxis = function () {
-  function my(selection) {
-    // render charts
-  }
-};
 
 export function getAxisPathString(x1, x2, y1, y2) {
   const path = d3.path();
@@ -279,11 +284,12 @@ export function renderAxisX(
   selection,
   xScale,
   yPos,
+  showSampleNames = true,
   bottom = true,
   rotateLabels = false
 ) {
-  const tickLengthBase = 6;
-  const tickMarkAndTextPadding = 4;
+  const tickLengthBase = xScale.tickLength();
+  const tickMarkAndTextPadding = xScale.tickMarkAndTextPadding();
   let tickLength = bottom ? tickLengthBase : -tickLengthBase;
   let dominantBaseline;
   let textAnchor;
@@ -331,6 +337,7 @@ export function renderAxisX(
     .attr("class", "tick")
     .attr("transform", (d) => `translate( ${d.value},0)`);
 
+  if(showSampleNames){
   // Append the tick marks (lines) to the ticks
   const tickMarks = ticks.append("line").attr("stroke", "currentColor");
   tickMarks.attr("y2", tickLength);
@@ -345,9 +352,10 @@ export function renderAxisX(
     .attr("transform", `rotate(${rotate}, 0, 0)`)
     .attr(tickNudgeAxis, tickTextNudgeAmount)
     .text((d) => d.key);
-
+  }
   return xAxis;
 }
+
 
 /**
  * Renders the Y-axis for a given selection using the provided scale.
@@ -358,10 +366,10 @@ export function renderAxisX(
  * @param {boolean} [left=true] - Whether the axis should be at the left (default) or right.
  * @returns {d3.Selection} - The Y-axis selection.
  */
-export function renderAxisY(selection, yScale, xPos, left = true) {
-  const tickLengthBase = 6;
-  const tickMarkAndTextPadding = 4;
-  const facetNudgeX = -100;
+export function renderAxisY(selection, yScale, xPos, facetWidth, yTextAndTickWidth, left = true) {
+  const tickLengthBase = yScale.tickLength();
+  const tickMarkAndTextPadding = yScale.tickMarkAndTextPadding();
+
   let tickLength = left ? -tickLengthBase : tickLengthBase;
   let textAnchor = left ? "end" : "start"; // Updated textAnchor based on left parameter
   let tickTextNudgeAmount =
@@ -408,38 +416,62 @@ export function renderAxisY(selection, yScale, xPos, left = true) {
     .attr("x", tickTextNudgeAmount)
     .text((d) => d.key);
 
-  // Add facet rectangles and text
-  const tickBoundingBoxWidth = ticks.node().getBBox().width;
-  const facetRectWidth = 100;
-  const facetLeftNudge = -tickBoundingBoxWidth - facetRectWidth - 30;
-  // console.log("width: " + tickBoundingBoxWidth);
-  const facetGroup = yAxis
-    .selectAll(".facet")
-    .data(yScale.facetRangeArray())
-    .join("g")
-    .attr("class", "facet")
-    .attr(
-      "transform",
-      (d) => `translate(${facetLeftNudge}, ${d.startPosition})`
-    );
+    // debugger
+  // facetWidth = yScale.facet()
+    renderFacetsY(selection, yScale, xPos-facetWidth-yTextAndTickWidth, facetWidth)
 
-  const facetRect = facetGroup
-    .append("rect")
+  return yAxis;
+}
+
+
+function renderFacetsY(selection, yScale, xPos, width) {
+
+  // Add facet rectangles and text
+//  const tickBoundingBoxWidth = ticks.node().getBBox().width;
+ const facetRectWidth = width;
+//  const facetLeftNudge = -tickBoundingBoxWidth - facetRectWidth - 30;
+ // console.log("width: " + tickBoundingBoxWidth);
+ 
+ const facetAxis = selection
+   .selectAll(".facet-y")
+   .data([null])
+   .join('g')
+   .attr('class', 'facet-y')
+   .attr(
+    "transform",
+    (d) => `translate(${xPos}, 0)`
+  );
+
+   const facetGroups = facetAxis
+   .selectAll('.facet')
+   .data(yScale.facetRangeArray())
+   .join("g")
+   .attr("class", "facet")
+   .attr(
+    "transform",
+    (d) => `translate(0, ${d.startPosition})`
+  )
+    
+    // Append a single facet-rect to each facetGroup
+    facetGroups
+    .append('rect')
     .attr("class", "facet-rect")
-    .attr("x", 0) // You might need to adjust the x-position based on your needs
-    .attr("y", 0) // You might need to adjust the y-position based on your needs
-    .attr("width", facetRectWidth) // Adjust the width of the rectangle
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", facetRectWidth)
     .attr("height", (d) => d.rectHeight);
 
-  const facetText = facetGroup
-    .append("text")
-    .text((d) => d.facet) // Set the text content
-    .attr("class", "facet-text")
-    .attr("x", facetRectWidth / 2) // Set x-coordinate to the middle
-    .attr("y", (d) => d.rectHeight / 2) // Set y-coordinate to the middle
-    // .attr("x", 0) // Set x-coordinate to the middle
-    // .attr("y", 0) // Set y-coordinate to the middle
-    .attr("text-anchor", "middle") // Align text in the middle
-    .attr("dominant-baseline", "middle"); // Align text vertically in the middle
-  return yAxis;
+
+  facetGroups
+   .append("text")
+   .text((d) => d.facet) // Set the text content
+   .attr("class", "facet-text")
+   .attr("x", facetRectWidth / 2) // Set x-coordinate to the middle
+   .attr("y", (d) => d.rectHeight / 2) // Set y-coordinate to the middle
+   // .attr("x", 0) // Set x-coordinate to the middle
+   // .attr("y", 0) // Set y-coordinate to the middle
+   .attr("text-anchor", "middle") // Align text in the middle
+   .attr("dominant-baseline", "middle"); // Align text vertically in the middle
+
+  // return yAxis;
 }

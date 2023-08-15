@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-
-import { scaleBandFacet, renderAxisX, renderAxisY } from "./scaleBandFacet.js";
+import { scaleBandFacet, renderAxisX, renderAxisY, renderFacetsY } from "./scaleBandFacet.js";
+import { yAxisLayout, xAxisLayout } from "./utils.js";
 
 const data = [
   { x: "Patient5", y: "BRCA2", type: "missense" },
@@ -44,6 +44,19 @@ const xOrder = [
   "Patient9",
 ];
 
+const tmb = [
+  { x: "Patient1", tmb: 1.2 },
+  { x: "Patient2", tmb: 3.5 },
+  { x: "Patient3", tmb: 2.0 },
+  { x: "Patient4", tmb: 4.8 },
+  { x: "Patient5", tmb: 5.3 },
+  { x: "Patient6", tmb: 2.7 },
+  { x: "Patient7", tmb: 1.5 },
+  { x: "Patient8", tmb: 3.9 },
+  { x: "Patient9", tmb: 6.2 },
+];
+
+
 const yOrder = ["TP53", "RAD51", "BRCA1", "BRCA2"];
 const yFacets = ["TP53", "HRD", "HRD", "HRD"];
 
@@ -79,6 +92,23 @@ const getColor = (val) => {
 // Get Window Dimensions
 const width = window.innerWidth;
 const height = window.innerHeight;
+
+// Other tweakables
+const geneBarPadding = 0
+const geneBarWidth = 0
+const tickLength = 6
+const tickMarkAndTextPadding = 4
+const fontsizeFacet = 14
+const fontsizeY = 14
+const fontsizeX = 14
+const tmbBarPadding = 10
+const tmbBarHeight = 50
+const oncoplotClinicalPadding = 20
+const clinicalRowHeight = 30
+const clinicalRowPadding = 5
+const clinicalRowNumber = 5
+const showSampleNames = true
+
 
 //! Constant
 // Tooltip
@@ -116,30 +146,56 @@ const margin = {
   top: 20,
   right: 20,
   bottom: 60,
-  left: 200,
+  left: 20,
 };
 
-const xScale = scaleBandFacet()
-  .range([margin.left, width - margin.right])
-  .domain(xOrder)
-  .paddingInner(xPadding)
-  .paddingOuter(xPaddingOuter);
-//.buildDomainRangeMap();
+// Create Layout Objects
+const yLayout = yAxisLayout()
+.facets(yFacets)
+.domain(yOrder)
+.margin(margin)
+.windowWidth(width)
+.geneBarPadding(geneBarPadding)
+.geneBarWidth(geneBarWidth)
+.tickMarkAndTextPadding(tickMarkAndTextPadding)
+.tickLength(tickLength)
+.fontSizeFacet(fontsizeFacet)
+.fontSizeDomain(fontsizeY)
+.computeLayout()
 
-console.log(xScale());
+const xLayout = xAxisLayout()
+.domain(xOrder)
+.fontsizeX(fontsizeX)
+.showSampleNames(showSampleNames)
+.margin(margin)
+.windowHeight(height)
+.tmbBarPadding(tmbBarPadding)
+.tmbBarHeight(tmbBarHeight)
+.tickMarkAndTextPadding(tickMarkAndTextPadding)
+.oncoplotClinicalPadding(oncoplotClinicalPadding)
+.clinicalRowHeight(clinicalRowHeight)
+.clinicalRowPadding(clinicalRowPadding)
+.clinicalRowNumber(clinicalRowNumber)
+.tickLength(tickLength)
+.computeLayout()
+
+console.log(xLayout)
+console.log(yLayout)
+
 
 const yScale = scaleBandFacet()
-  .range([height - margin.bottom, margin.top])
+.range([xLayout.oncoplotPosStartY,xLayout.oncoplotPosEndY])
   .domain(yOrder)
   .facet(yFacets)
   .paddingInner(yPadding)
   .facetPaddingMultiplier(facetPaddingMultiplier);
 
-// const yScale = d3
-//   .scaleBand()
-//   .range([height - margin.bottom, margin.top])
-//   .domain(yOrder.reverse())
-//   .padding(yPadding);
+  const xScale = scaleBandFacet()
+  .range([yLayout.oncoplotPosStartX, yLayout.oncoplotPosEndX])
+  .domain(xOrder)
+  .paddingInner(xPadding)
+  .paddingOuter(xPaddingOuter);
+
 
 // ////////////////////////////////////////////////////////////////////////
 // // Create Marks Array
@@ -152,24 +208,14 @@ const marks = data.map((d) => ({
   tooltip: [xAccessor(d), yAccessor(d)].join(" - "),
 }));
 
-console.log(marks);
+// console.log(marks);
 
-// Render axes
-// // Create Axes From scales (e.g. using d3.scaleLinear())
-// const xAxis = d3.axisBottom(xScale);
-const yAxis = d3.axisLeft(yScale);
-
-// Render Axes
-renderAxisX(svg, xScale, height - margin.bottom, true, true);
-renderAxisY(svg, yScale, margin.left, true);
-
-// svg
-//   .selectAll(".y-axis")
-//   .data([null])
-//   .join("g")
-//   .attr("class", "y-axis")
-//   .attr("transform", `translate(${margin.left}, 0)`)
-//   .call(yAxis);
+// // Render axes
+// // // Create Axes From scales (e.g. using d3.scaleLinear())
+// // const xAxis = d3.axisBottom(xScale);
+// // const yAxis = d3.axisLeft(yScale);e)
+renderAxisX(svg, xScale, xLayout.oncoplotPosEndY, showSampleNames, true, true);
+renderAxisY(svg, yScale, yLayout.oncoplotPosStartX, yLayout.facetWidth, yLayout.yTextAndTickWidth, true);
 
 // draw marks
 svg
@@ -189,14 +235,5 @@ svg
   .attr("originalColor", (d) => d.color)
   .attr("rx", 15)
   // .on("mouseover", mouseover)
-  .on("mousemove", mousemove, )
+  .on("mousemove", mousemove)
   .on("mouseleave", mouseleave);
-
-// svg
-//   .selectAll(".debugcircle")
-//   .data(marks)
-//   .join("circle")
-//   .attr("class", "debugcircle")
-//   .attr("cx", (d) => d.xpos)
-//   .attr("cy", (d) => d.ypos)
-//   .attr("r", 10);

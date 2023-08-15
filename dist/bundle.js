@@ -38,6 +38,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/src/index.js");
 /* harmony import */ var _arrayFunctions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./arrayFunctions */ "./app/arrayFunctions.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./app/utils.js");
+
 
 
 
@@ -73,7 +75,9 @@ function scaleBandFacet() {
     // facetRangeMap = new Map(),
     step,
     start,
-    stop;
+    stop,
+    tickLength = 6,
+    tickMarkAndTextPadding = 4;
 
   /**
    * Take a single domain value and return a matched pixel position based on range and padding settings.
@@ -219,6 +223,12 @@ function scaleBandFacet() {
     }
     return ret;
   };
+  my.tickLength = function (_) {
+    return arguments.length ? (tickLength = _, my) : tickLength;
+  };
+  my.tickMarkAndTextPadding = function (_) {
+    return arguments.length ? (tickMarkAndTextPadding = _, my) : tickMarkAndTextPadding;
+  };
   my.facetRangeArray = function () {
     return facetRangeArray;
   };
@@ -226,11 +236,6 @@ function scaleBandFacet() {
   // This allows method chaining and is only possible because in javascript functions are objects
   return my;
 }
-const scaleBandFacetAxis = function () {
-  function my(selection) {
-    // render charts
-  }
-};
 function getAxisPathString(x1, x2, y1, y2) {
   const path = d3__WEBPACK_IMPORTED_MODULE_0__.path();
   path.moveTo(x1, y1);
@@ -249,9 +254,9 @@ function getAxisPathString(x1, x2, y1, y2) {
  * @param {boolean} [rotateLabels=false] - Whether to rotate the tick labels by 90 degrees.
  * @returns {d3.Selection} - The X-axis selection.
  */
-function renderAxisX(selection, xScale, yPos, bottom = true, rotateLabels = false) {
-  const tickLengthBase = 6;
-  const tickMarkAndTextPadding = 4;
+function renderAxisX(selection, xScale, yPos, showSampleNames = true, bottom = true, rotateLabels = false) {
+  const tickLengthBase = xScale.tickLength();
+  const tickMarkAndTextPadding = xScale.tickMarkAndTextPadding();
   let tickLength = bottom ? tickLengthBase : -tickLengthBase;
   let dominantBaseline;
   let textAnchor;
@@ -284,13 +289,14 @@ function renderAxisX(selection, xScale, yPos, bottom = true, rotateLabels = fals
 
   // Bind data to ticks, create the tick group, and translate them to their positions
   const ticks = xAxis.selectAll(".tick").data(xScale.domainRangeCenterMap()).join("g").attr("class", "tick").attr("transform", d => `translate( ${d.value},0)`);
+  if (showSampleNames) {
+    // Append the tick marks (lines) to the ticks
+    const tickMarks = ticks.append("line").attr("stroke", "currentColor");
+    tickMarks.attr("y2", tickLength);
 
-  // Append the tick marks (lines) to the ticks
-  const tickMarks = ticks.append("line").attr("stroke", "currentColor");
-  tickMarks.attr("y2", tickLength);
-
-  // Append the tick labels (text) to the ticks and configure rotation and position
-  const tickText = ticks.append("text").attr("class", "x-axis-tick-text").attr("fill", "currentColor").attr("text-anchor", textAnchor).attr("dominant-baseline", dominantBaseline).attr("transform", `rotate(${rotate}, 0, 0)`).attr(tickNudgeAxis, tickTextNudgeAmount).text(d => d.key);
+    // Append the tick labels (text) to the ticks and configure rotation and position
+    const tickText = ticks.append("text").attr("class", "x-axis-tick-text").attr("fill", "currentColor").attr("text-anchor", textAnchor).attr("dominant-baseline", dominantBaseline).attr("transform", `rotate(${rotate}, 0, 0)`).attr(tickNudgeAxis, tickTextNudgeAmount).text(d => d.key);
+  }
   return xAxis;
 }
 
@@ -303,10 +309,9 @@ function renderAxisX(selection, xScale, yPos, bottom = true, rotateLabels = fals
  * @param {boolean} [left=true] - Whether the axis should be at the left (default) or right.
  * @returns {d3.Selection} - The Y-axis selection.
  */
-function renderAxisY(selection, yScale, xPos, left = true) {
-  const tickLengthBase = 6;
-  const tickMarkAndTextPadding = 4;
-  const facetNudgeX = -100;
+function renderAxisY(selection, yScale, xPos, facetWidth, yTextAndTickWidth, left = true) {
+  const tickLengthBase = yScale.tickLength();
+  const tickMarkAndTextPadding = yScale.tickMarkAndTextPadding();
   let tickLength = left ? -tickLengthBase : tickLengthBase;
   let textAnchor = left ? "end" : "start"; // Updated textAnchor based on left parameter
   let tickTextNudgeAmount = tickLength + Math.sign(tickLength) * tickMarkAndTextPadding;
@@ -332,24 +337,298 @@ function renderAxisY(selection, yScale, xPos, left = true) {
   // Append the tick labels (text) to the ticks and configure position
   const tickText = ticks.append("text").attr("class", "y-axis-tick-text").attr("fill", "currentColor").attr("text-anchor", textAnchor).attr("dominant-baseline", "middle").attr("x", tickTextNudgeAmount).text(d => d.key);
 
+  // debugger
+  // facetWidth = yScale.facet()
+  renderFacetsY(selection, yScale, xPos - facetWidth - yTextAndTickWidth, facetWidth);
+  return yAxis;
+}
+function renderFacetsY(selection, yScale, xPos, width) {
   // Add facet rectangles and text
-  const tickBoundingBoxWidth = ticks.node().getBBox().width;
-  const facetRectWidth = 100;
-  const facetLeftNudge = -tickBoundingBoxWidth - facetRectWidth - 30;
+  //  const tickBoundingBoxWidth = ticks.node().getBBox().width;
+  const facetRectWidth = width;
+  //  const facetLeftNudge = -tickBoundingBoxWidth - facetRectWidth - 30;
   // console.log("width: " + tickBoundingBoxWidth);
-  const facetGroup = yAxis.selectAll(".facet").data(yScale.facetRangeArray()).join("g").attr("class", "facet").attr("transform", d => `translate(${facetLeftNudge}, ${d.startPosition})`);
-  const facetRect = facetGroup.append("rect").attr("class", "facet-rect").attr("x", 0) // You might need to adjust the x-position based on your needs
-  .attr("y", 0) // You might need to adjust the y-position based on your needs
-  .attr("width", facetRectWidth) // Adjust the width of the rectangle
-  .attr("height", d => d.rectHeight);
-  const facetText = facetGroup.append("text").text(d => d.facet) // Set the text content
+
+  const facetAxis = selection.selectAll(".facet-y").data([null]).join('g').attr('class', 'facet-y').attr("transform", d => `translate(${xPos}, 0)`);
+  const facetGroups = facetAxis.selectAll('.facet').data(yScale.facetRangeArray()).join("g").attr("class", "facet").attr("transform", d => `translate(0, ${d.startPosition})`);
+
+  // Append a single facet-rect to each facetGroup
+  facetGroups.append('rect').attr("class", "facet-rect").attr("x", 0).attr("y", 0).attr("width", facetRectWidth).attr("height", d => d.rectHeight);
+  facetGroups.append("text").text(d => d.facet) // Set the text content
   .attr("class", "facet-text").attr("x", facetRectWidth / 2) // Set x-coordinate to the middle
   .attr("y", d => d.rectHeight / 2) // Set y-coordinate to the middle
   // .attr("x", 0) // Set x-coordinate to the middle
   // .attr("y", 0) // Set y-coordinate to the middle
   .attr("text-anchor", "middle") // Align text in the middle
   .attr("dominant-baseline", "middle"); // Align text vertically in the middle
-  return yAxis;
+
+  // return yAxis;
+}
+
+/***/ }),
+
+/***/ "./app/utils.js":
+/*!**********************!*\
+  !*** ./app/utils.js ***!
+  \**********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getCanvasFont: () => (/* binding */ getCanvasFont),
+/* harmony export */   getTextWidth: () => (/* binding */ getTextWidth),
+/* harmony export */   longestString: () => (/* binding */ longestString),
+/* harmony export */   maxCharacters: () => (/* binding */ maxCharacters),
+/* harmony export */   xAxisLayout: () => (/* binding */ xAxisLayout),
+/* harmony export */   yAxisLayout: () => (/* binding */ yAxisLayout)
+/* harmony export */ });
+/**
+ * Calculates the maximum number of characters in an array of strings.
+ * 
+ * @param {Array} strings An array of strings.
+ * @returns {number} The maximum number of characters in the array of strings.
+ */
+function maxCharacters(strings) {
+  if (!Array.isArray(strings) || strings.length === 0) {
+    return 0; // If the input is not an array or empty, return 0
+  }
+
+  const maxLength = strings.reduce((max, str) => {
+    const length = str.length;
+    return length > max ? length : max;
+  }, 0);
+  return maxLength;
+}
+
+/**
+ * Returns the string with the greatest length from an array of strings.
+ * 
+ * @param {Array} arr An array of strings.
+ * @returns {string} The string with the greatest length.
+ */
+function longestString(arr) {
+  let longest = "";
+  for (let str of arr) {
+    if (str.length > longest.length) {
+      longest = str;
+    }
+  }
+  return longest;
+}
+
+/**
+ * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
+ * 
+ * @param {String} text The text to be rendered.
+ * @param {String} font The CSS font descriptor that text is to be rendered with (e.g. "bold 14px verdana").
+ * @returns {number} The width of the given text in pixels.
+ * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+ */
+function getTextWidth(text, font) {
+  // re-use canvas object for better performance
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+  const context = canvas.getContext("2d");
+  context.font = font;
+  const metrics = context.measureText(text);
+  return metrics.width;
+}
+
+/**
+ * Retrieves the computed CSS style property for a given element.
+ * 
+ * @param {Element} element The HTML element.
+ * @param {String} prop The CSS property to retrieve.
+ * @returns {String} The computed CSS style property.
+ */
+function getCssStyle(element, prop) {
+  return window.getComputedStyle(element, null).getPropertyValue(prop);
+}
+
+/**
+ * Retrieves the font style of a canvas element.
+ * 
+ * @param {Element} el The canvas element.
+ * @returns {String} The font style of the canvas element.
+ */
+function getCanvasFont(el) {
+  const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
+  const fontSize = getCssStyle(el, 'font-size') || '16px';
+  const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
+  return `${fontWeight} ${fontSize} ${fontFamily}`;
+}
+
+// Computes Various X intercepts important for determining where we should place y Axes
+function yAxisLayout() {
+  // Properties
+  let facets,
+    domain,
+    margin,
+    windowWidth,
+    geneBarPadding,
+    geneBarWidth,
+    fontSizeFacet = 14,
+    fontSizeDomain = 14,
+    tickMarkAndTextPadding,
+    tickLength,
+    metrics = {};
+  const my = function () {
+    return my;
+  };
+  my.margin = function (_) {
+    return arguments.length ? (margin = _, my) : margin;
+  };
+  my.facets = function (_) {
+    return arguments.length ? (facets = _, my) : facets;
+  };
+  my.domain = function (_) {
+    return arguments.length ? (domain = _, my) : domain;
+  };
+  my.tickWidth = function (_) {
+    return arguments.length ? (tickWidth = _, my) : tickWidth;
+  };
+  my.geneBarPadding = function (_) {
+    return arguments.length ? (geneBarPadding = _, my) : geneBarPadding;
+  };
+  my.geneBarWidth = function (_) {
+    return arguments.length ? (geneBarWidth = _, my) : geneBarWidth;
+  };
+  my.windowWidth = function (_) {
+    return arguments.length ? (windowWidth = _, my) : windowWidth;
+  };
+  my.tickMarkAndTextPadding = function (_) {
+    return arguments.length ? (tickMarkAndTextPadding = _, my) : tickMarkAndTextPadding;
+  };
+  my.tickLength = function (_) {
+    return arguments.length ? (tickLength = _, my) : tickLength;
+  };
+  my.fontSizeFacet = function (_) {
+    return arguments.length ? (fontSizeFacet = _, my) : fontSizeFacet;
+  };
+  my.fontSizeDomain = function (_) {
+    return arguments.length ? (fontSizeDomain = _, my) : fontSizeDomain;
+  };
+  my.computeLayout = function () {
+    if (margin === undefined) throw new Error('margin is undefined');
+    if (windowWidth === undefined) throw new Error('windowWidth is undefined');
+    if (geneBarPadding === undefined) throw new Error('geneBarPadding is undefined');
+    if (geneBarWidth === undefined) throw new Error('geneBarWidth is undefined');
+    if (tickMarkAndTextPadding === undefined) throw new Error('tickMarkAndTextPadding is undefined');
+    if (tickLength === undefined) throw new Error('tickLength is undefined');
+    if (facets === undefined) throw new Error('facets is undefined');
+    if (domain === undefined) throw new Error('domain is undefined');
+
+    // const leftMargin = margin.left
+    const tickWidth = tickLength + tickMarkAndTextPadding;
+
+    // Calculate the maximum number of characters in facets and domains
+    const maxCharactersFacet = maxCharacters(facets);
+    const maxCharactersDomain = maxCharacters(domain);
+
+    // Calculate facet width and Y-axis text and tick width
+    metrics.facetPosX = margin.left;
+    metrics.facetWidth = maxCharactersFacet * fontSizeFacet;
+    metrics.yTextAndTickWidth = maxCharactersDomain * fontSizeDomain + Math.abs(tickWidth);
+
+    // Calculate X pixel position of Y axis
+    metrics.oncoplotPosStartX = margin.left + metrics.facetWidth + metrics.yTextAndTickWidth;
+    metrics.oncoplotWidth = windowWidth - margin.left - margin.right - metrics.facetWidth - metrics.yTextAndTickWidth - geneBarWidth - geneBarPadding;
+    metrics.oncoplotPosEndX = metrics.oncoplotPosStartX + metrics.oncoplotWidth;
+    metrics.geneBarPosX = metrics.oncoplotPosStartX + metrics.oncoplotWidth + geneBarPadding;
+    return metrics;
+  };
+  return my;
+}
+
+// Computes Various Y intercepts important for determining where we should x Axes
+function xAxisLayout() {
+  // Properties
+  let domain,
+    // sample names
+    showSampleNames,
+    fontsizeX,
+    margin,
+    windowHeight,
+    tmbBarPadding,
+    tmbBarHeight,
+    tickMarkAndTextPadding,
+    oncoplotClinicalPadding = 10,
+    clinicalRowHeight,
+    clinicalRowPadding,
+    clinicalRowNumber,
+    tickLength,
+    metrics = {};
+  const my = function () {
+    return my;
+  };
+  my.margin = function (_) {
+    return arguments.length ? (margin = _, my) : margin;
+  };
+  my.domain = function (_) {
+    return arguments.length ? (domain = _, my) : domain;
+  };
+  my.tmbBarPadding = function (_) {
+    return arguments.length ? (tmbBarPadding = _, my) : tmbBarPadding;
+  };
+  my.tmbBarHeight = function (_) {
+    return arguments.length ? (tmbBarHeight = _, my) : tmbBarHeight;
+  };
+  my.windowHeight = function (_) {
+    return arguments.length ? (windowHeight = _, my) : windowHeight;
+  };
+  my.tickMarkAndTextPadding = function (_) {
+    return arguments.length ? (tickMarkAndTextPadding = _, my) : tickMarkAndTextPadding;
+  };
+  my.tickLength = function (_) {
+    return arguments.length ? (tickLength = _, my) : tickLength;
+  };
+  my.fontsizeX = function (_) {
+    return arguments.length ? (fontsizeX = _, my) : fontsizeX;
+  };
+  my.oncoplotClinicalPadding = function (_) {
+    return arguments.length ? (oncoplotClinicalPadding = _, my) : oncoplotClinicalPadding;
+  };
+  my.clinicalRowHeight = function (_) {
+    return arguments.length ? (clinicalRowHeight = _, my) : clinicalRowHeight;
+  };
+  my.clinicalRowPadding = function (_) {
+    return arguments.length ? (clinicalRowPadding = _, my) : clinicalRowPadding;
+  };
+  my.clinicalRowNumber = function (_) {
+    return arguments.length ? (clinicalRowNumber = _, my) : clinicalRowNumber;
+  };
+  my.showSampleNames = function (_) {
+    return arguments.length ? (showSampleNames = _, my) : showSampleNames;
+  };
+  my.computeLayout = function () {
+    // Ensure all variables used in this function are defined
+    if (margin === undefined) throw new Error('margin is undefined');
+    if (windowHeight === undefined) throw new Error('windowHeight is undefined');
+    if (tmbBarPadding === undefined) throw new Error('tmbBarPadding is undefined');
+    if (tmbBarHeight === undefined) throw new Error('tmbBarHeight is undefined');
+    if (tickMarkAndTextPadding === undefined) throw new Error('tickMarkAndTextPadding is undefined');
+    if (tickLength === undefined) throw new Error('tickLength is undefined');
+    if (domain === undefined) throw new Error('domain is undefined');
+
+    // Calculate the maximum number of characters in domain (sample Names)
+    const maxCharactersDomain = maxCharacters(domain);
+
+    // Extract fontsize so we can figure out how wide to make facet + gene names (need to move these to scale)
+    if (!showSampleNames) {
+      metrics.maxSampleLabelsHeight = 0;
+    } else {
+      metrics.maxSampleLabelsHeight = fontsizeX * maxCharactersDomain + Math.abs(tickLength + tickMarkAndTextPadding);
+    }
+    metrics.tmbBarPosStartY = margin.top;
+    metrics.tmbBarHeight = tmbBarHeight;
+    metrics.oncoplotPosStartY = metrics.tmbBarPosStartY + metrics.tmbBarHeight + tmbBarPadding;
+    metrics.clinicalHeight = clinicalRowHeight * clinicalRowNumber + clinicalRowPadding * (clinicalRowNumber - 1);
+    metrics.oncoplotHeight = windowHeight - tmbBarHeight - metrics.clinicalHeight - metrics.maxSampleLabelsHeight - tmbBarPadding - oncoplotClinicalPadding - margin.top - margin.bottom;
+    metrics.oncoplotPosEndY = metrics.oncoplotPosStartY + metrics.oncoplotHeight;
+    metrics.clinicalStartY = metrics.oncoplotPosEndY + oncoplotClinicalPadding;
+    metrics.clinicalEndY = metrics.clinicalStartY + metrics.clinicalHeight;
+    return metrics;
+  };
+  return my;
 }
 
 /***/ }),
@@ -34152,6 +34431,8 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/src/index.js");
 /* harmony import */ var _scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scaleBandFacet.js */ "./app/scaleBandFacet.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils.js */ "./app/utils.js");
+
 
 
 const data = [{
@@ -34264,6 +34545,34 @@ const data = [{
   type: "missense"
 }];
 const xOrder = ["Patient1", "Patient2", "Patient3", "Patient4", "Patient5", "Patient6", "Patient7", "Patient8", "Patient9"];
+const tmb = [{
+  x: "Patient1",
+  tmb: 1.2
+}, {
+  x: "Patient2",
+  tmb: 3.5
+}, {
+  x: "Patient3",
+  tmb: 2.0
+}, {
+  x: "Patient4",
+  tmb: 4.8
+}, {
+  x: "Patient5",
+  tmb: 5.3
+}, {
+  x: "Patient6",
+  tmb: 2.7
+}, {
+  x: "Patient7",
+  tmb: 1.5
+}, {
+  x: "Patient8",
+  tmb: 3.9
+}, {
+  x: "Patient9",
+  tmb: 6.2
+}];
 const yOrder = ["TP53", "RAD51", "BRCA1", "BRCA2"];
 const yFacets = ["TP53", "HRD", "HRD", "HRD"];
 
@@ -34297,6 +34606,22 @@ const getColor = val => {
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+// Other tweakables
+const geneBarPadding = 0;
+const geneBarWidth = 0;
+const tickLength = 6;
+const tickMarkAndTextPadding = 4;
+const fontsizeFacet = 14;
+const fontsizeY = 14;
+const fontsizeX = 14;
+const tmbBarPadding = 10;
+const tmbBarHeight = 50;
+const oncoplotClinicalPadding = 20;
+const clinicalRowHeight = 30;
+const clinicalRowPadding = 5;
+const clinicalRowNumber = 5;
+const showSampleNames = true;
+
 //! Constant
 // Tooltip
 const tooltip = d3__WEBPACK_IMPORTED_MODULE_0__.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
@@ -34319,19 +34644,16 @@ const margin = {
   top: 20,
   right: 20,
   bottom: 60,
-  left: 200
+  left: 20
 };
-const xScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([margin.left, width - margin.right]).domain(xOrder).paddingInner(xPadding).paddingOuter(xPaddingOuter);
-//.buildDomainRangeMap();
 
-console.log(xScale());
-const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([height - margin.bottom, margin.top]).domain(yOrder).facet(yFacets).paddingInner(yPadding).facetPaddingMultiplier(facetPaddingMultiplier);
-
-// const yScale = d3
-//   .scaleBand()
-//   .range([height - margin.bottom, margin.top])
-//   .domain(yOrder.reverse())
-//   .padding(yPadding);
+// Create Layout Objects
+const yLayout = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.yAxisLayout)().facets(yFacets).domain(yOrder).margin(margin).windowWidth(width).geneBarPadding(geneBarPadding).geneBarWidth(geneBarWidth).tickMarkAndTextPadding(tickMarkAndTextPadding).tickLength(tickLength).fontSizeFacet(fontsizeFacet).fontSizeDomain(fontsizeY).computeLayout();
+const xLayout = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.xAxisLayout)().domain(xOrder).fontsizeX(fontsizeX).showSampleNames(showSampleNames).margin(margin).windowHeight(height).tmbBarPadding(tmbBarPadding).tmbBarHeight(tmbBarHeight).tickMarkAndTextPadding(tickMarkAndTextPadding).oncoplotClinicalPadding(oncoplotClinicalPadding).clinicalRowHeight(clinicalRowHeight).clinicalRowPadding(clinicalRowPadding).clinicalRowNumber(clinicalRowNumber).tickLength(tickLength).computeLayout();
+console.log(xLayout);
+console.log(yLayout);
+const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([xLayout.oncoplotPosStartY, xLayout.oncoplotPosEndY]).domain(yOrder).facet(yFacets).paddingInner(yPadding).facetPaddingMultiplier(facetPaddingMultiplier);
+const xScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([yLayout.oncoplotPosStartX, yLayout.oncoplotPosEndX]).domain(xOrder).paddingInner(xPadding).paddingOuter(xPaddingOuter);
 
 // ////////////////////////////////////////////////////////////////////////
 // // Create Marks Array
@@ -34343,38 +34665,20 @@ const marks = data.map(d => ({
   // gene: yAccessor(d)
   tooltip: [xAccessor(d), yAccessor(d)].join(" - ")
 }));
-console.log(marks);
 
-// Render axes
-// // Create Axes From scales (e.g. using d3.scaleLinear())
-// const xAxis = d3.axisBottom(xScale);
-const yAxis = d3__WEBPACK_IMPORTED_MODULE_0__.axisLeft(yScale);
+// console.log(marks);
 
-// Render Axes
-(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisX)(svg, xScale, height - margin.bottom, true, true);
-(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisY)(svg, yScale, margin.left, true);
-
-// svg
-//   .selectAll(".y-axis")
-//   .data([null])
-//   .join("g")
-//   .attr("class", "y-axis")
-//   .attr("transform", `translate(${margin.left}, 0)`)
-//   .call(yAxis);
+// // Render axes
+// // // Create Axes From scales (e.g. using d3.scaleLinear())
+// // const xAxis = d3.axisBottom(xScale);
+// // const yAxis = d3.axisLeft(yScale);e)
+(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisX)(svg, xScale, xLayout.oncoplotPosEndY, showSampleNames, true, true);
+(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisY)(svg, yScale, yLayout.oncoplotPosStartX, yLayout.facetWidth, yLayout.yTextAndTickWidth, true);
 
 // draw marks
 svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marks).join("rect").attr("class", "oncoplot-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15)
 // .on("mouseover", mouseover)
 .on("mousemove", mousemove).on("mouseleave", mouseleave);
-
-// svg
-//   .selectAll(".debugcircle")
-//   .data(marks)
-//   .join("circle")
-//   .attr("class", "debugcircle")
-//   .attr("cx", (d) => d.xpos)
-//   .attr("cy", (d) => d.ypos)
-//   .attr("r", 10);
 })();
 
 /******/ })()
