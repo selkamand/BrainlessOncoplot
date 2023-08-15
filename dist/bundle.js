@@ -34723,7 +34723,7 @@ const marksTMB = tmb.map(d => ({
   // color: getColor(typeAccessor(d)),
   // sample: xAccessor(d),
   // gene: yAccessor(d)
-  tooltip: yAccessor(d)
+  tooltip: xAccessor(d) + "<br>" + "TMB: " + d.tmb
 }));
 
 // Render axes: Oncoplot
@@ -34732,12 +34732,12 @@ const marksTMB = tmb.map(d => ({
 
 // Render axes: TMB
 const axisTMB = d3__WEBPACK_IMPORTED_MODULE_0__.axisLeft(yScaleTMB.nice(1)).ticks(1);
-svg.append("g").attr('class', 'y-axis-tmb')
+svg.selectAll('.y-axis-tmb').data([null]).join('g').attr('class', 'y-axis-tmb')
 // .attr("transform", `translate(10, 10)`)
 .attr("transform", `translate(${yLayout.oncoplotPosStartX}, 0)`).call(axisTMB);
 
 // Render Marks: TMB
-svg.selectAll('.tmb-barplot').data([null]).join("g").attr('class', 'tmb-barplot').selectAll("rect").data(marksTMB).join("rect").attr("class", 'tmb-rect').attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", d => d.height);
+svg.selectAll('.tmb-barplot').data([null]).join("g").attr('class', 'tmb-barplot').selectAll("rect").data(marksTMB).join("rect").attr("class", 'tmb-rect').attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", d => d.height).on("mousemove", mousemove).on("mouseleave", mouseleave);
 
 // Render Marks: Oncoplot
 svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marksOncoplot).join("rect").attr("class", "oncoplot-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15)

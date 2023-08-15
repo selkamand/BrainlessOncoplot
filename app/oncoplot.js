@@ -233,7 +233,7 @@ const marksTMB = tmb.map((d) => ({
   // color: getColor(typeAccessor(d)),
   // sample: xAccessor(d),
   // gene: yAccessor(d)
-  tooltip: yAccessor(d),
+  tooltip:  xAccessor(d) + "<br>" + "TMB: " + d.tmb ,
 }));
 
 // Render axes: Oncoplot
@@ -243,11 +243,14 @@ renderAxisY(svg, yScale, yLayout.oncoplotPosStartX, yLayout.facetWidth, yLayout.
 // Render axes: TMB
 const axisTMB = d3.axisLeft(yScaleTMB.nice(1)).ticks(1);
 svg
-.append("g")
+.selectAll('.y-axis-tmb')
+.data([null])
+.join('g')
 .attr('class', 'y-axis-tmb')
 // .attr("transform", `translate(10, 10)`)
 .attr("transform", `translate(${yLayout.oncoplotPosStartX}, 0)`)
 .call(axisTMB)
+
 
 // Render Marks: TMB
 svg
@@ -263,6 +266,8 @@ svg
 .attr("y", (d) => d.ypos)
 .attr("width", xScale.bandwidth)
 .attr("height", (d) => d.height)
+.on("mousemove", mousemove)
+.on("mouseleave", mouseleave)
 
 // Render Marks: Oncoplot
 svg
