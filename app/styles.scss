@@ -34,10 +34,18 @@
     stroke-width: 10px;
     transform: scale(1.05)
   }
+
   .oncoplot-rect{
     transform-origin: center; /* or transform-origin: 50% */
     transform-box: fill-box;
     transition: all 0.1s;
+  }
+
+  .tmb-rect{
+    fill: #262424
+  }
+  .tmb-rect:hover{
+    fill: #DA4567;
   }
 
   .tooltip {

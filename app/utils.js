@@ -277,6 +277,7 @@ export function xAxisLayout() {
     
         metrics.tmbBarPosStartY = margin.top
         metrics.tmbBarHeight = tmbBarHeight
+        metrics.tmbBarPosEndY = margin.top + tmbBarHeight
         metrics.oncoplotPosStartY = metrics.tmbBarPosStartY + metrics.tmbBarHeight  + tmbBarPadding
         metrics.clinicalHeight = clinicalRowHeight * clinicalRowNumber + clinicalRowPadding * (clinicalRowNumber-1)
         metrics.oncoplotHeight = windowHeight - tmbBarHeight - metrics.clinicalHeight - metrics.maxSampleLabelsHeight - tmbBarPadding - oncoplotClinicalPadding - margin.top - margin.bottom

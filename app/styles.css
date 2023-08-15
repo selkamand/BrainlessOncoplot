@@ -40,6 +40,14 @@
   transition: all 0.1s;
 }
 
+.tmb-rect {
+  fill: #262424;
+}
+
+.tmb-rect:hover {
+  fill: #DA4567;
+}
+
 .tooltip {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */

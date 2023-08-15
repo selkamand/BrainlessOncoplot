@@ -620,6 +620,7 @@ function xAxisLayout() {
     }
     metrics.tmbBarPosStartY = margin.top;
     metrics.tmbBarHeight = tmbBarHeight;
+    metrics.tmbBarPosEndY = margin.top + tmbBarHeight;
     metrics.oncoplotPosStartY = metrics.tmbBarPosStartY + metrics.tmbBarHeight + tmbBarPadding;
     metrics.clinicalHeight = clinicalRowHeight * clinicalRowNumber + clinicalRowPadding * (clinicalRowNumber - 1);
     metrics.oncoplotHeight = windowHeight - tmbBarHeight - metrics.clinicalHeight - metrics.maxSampleLabelsHeight - tmbBarPadding - oncoplotClinicalPadding - margin.top - margin.bottom;
@@ -34660,11 +34661,11 @@ const geneBarPadding = 0;
 const geneBarWidth = 0;
 const tickLength = 6;
 const tickMarkAndTextPadding = 4;
-const fontsizeFacet = 14;
-const fontsizeY = 14;
-const fontsizeX = 14;
+const fontsizeFacet = 18;
+const fontsizeY = 18;
+const fontsizeX = 18;
 const tmbBarPadding = 10;
-const tmbBarHeight = 50;
+const tmbBarHeight = 100;
 const oncoplotClinicalPadding = 20;
 const clinicalRowHeight = 30;
 const clinicalRowPadding = 5;
@@ -34703,10 +34704,11 @@ console.log(xLayout);
 console.log(yLayout);
 const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([xLayout.oncoplotPosStartY, xLayout.oncoplotPosEndY]).domain(yOrder).facet(yFacets).paddingInner(yPadding).facetPaddingMultiplier(facetPaddingMultiplier);
 const xScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([yLayout.oncoplotPosStartX, yLayout.oncoplotPosEndX]).domain(xOrder).paddingInner(xPadding).paddingOuter(xPaddingOuter);
+const yScaleTMB = d3__WEBPACK_IMPORTED_MODULE_0__.scaleLinear().range([xLayout.tmbBarPosEndY, xLayout.tmbBarPosStartY]).domain([0, d3__WEBPACK_IMPORTED_MODULE_0__.max(tmb.map(d => d.tmb))]);
 
 // ////////////////////////////////////////////////////////////////////////
 // // Create Marks Array
-const marks = data.map(d => ({
+const marksOncoplot = data.map(d => ({
   xpos: xScale(xAccessor(d)),
   ypos: yScale(yAccessor(d)),
   color: getColor(typeAccessor(d)),
@@ -34714,15 +34716,42 @@ const marks = data.map(d => ({
   // gene: yAccessor(d)
   tooltip: [xAccessor(d), yAccessor(d)].join(" - ")
 }));
+const marksTMB = tmb.map(d => ({
+  xpos: xScale(xAccessor(d)),
+  ypos: yScaleTMB(d.tmb),
+  height: xLayout.tmbBarPosEndY - yScaleTMB(d.tmb),
+  // color: getColor(typeAccessor(d)),
+  // sample: xAccessor(d),
+  // gene: yAccessor(d)
+  tooltip: yAccessor(d)
+}));
 
-// // Render axes
+// Render axes: Oncoplot
 (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisX)(svg, xScale, xLayout.oncoplotPosEndY, showSampleNames, true, true);
 (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisY)(svg, yScale, yLayout.oncoplotPosStartX, yLayout.facetWidth, yLayout.yTextAndTickWidth, true);
 
-// draw marks
-svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marks).join("rect").attr("class", "oncoplot-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15)
+// Render axes: TMB
+const axisTMB = d3__WEBPACK_IMPORTED_MODULE_0__.axisLeft(yScaleTMB.nice(1)).ticks(1);
+svg.append("g").attr('class', 'y-axis-tmb')
+// .attr("transform", `translate(10, 10)`)
+.attr("transform", `translate(${yLayout.oncoplotPosStartX}, 0)`).call(axisTMB);
+
+// Render Marks: TMB
+svg.selectAll('.tmb-barplot').data([null]).join("g").attr('class', 'tmb-barplot').selectAll("rect").data(marksTMB).join("rect").attr("class", 'tmb-rect').attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", d => d.height);
+
+// Render Marks: Oncoplot
+svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marksOncoplot).join("rect").attr("class", "oncoplot-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15)
 // .on("mouseover", mouseover)
 .on("mousemove", mousemove).on("mouseleave", mouseleave);
+
+// draw Oncoplot
+
+// Enforce fontsize
+
+// Font Size Enforcement
+svg.selectAll(".y-axis-tick-text").style('font-size', fontsizeY + 'px');
+svg.selectAll(".x-axis-tick-text").style('font-size', fontsizeX + 'px');
+svg.selectAll(".facet-text").style('font-size', fontsizeFacet + 'px');
 })();
 
 /******/ })()
