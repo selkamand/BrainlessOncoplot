@@ -379,6 +379,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getTextWidth: () => (/* binding */ getTextWidth),
 /* harmony export */   longestString: () => (/* binding */ longestString),
 /* harmony export */   maxCharacters: () => (/* binding */ maxCharacters),
+/* harmony export */   summariseMutationsByGene: () => (/* binding */ summariseMutationsByGene),
 /* harmony export */   xAxisLayout: () => (/* binding */ xAxisLayout),
 /* harmony export */   yAxisLayout: () => (/* binding */ yAxisLayout)
 /* harmony export */ });
@@ -630,6 +631,24 @@ function xAxisLayout() {
     return metrics;
   };
   return my;
+}
+
+// Data should be an array of objects with 3 columns. x (patient/sample IDs), y (gene/interval ids), type (mutation type)
+
+function summariseMutationsByGene(data) {
+  const mutationCounts = {};
+  data.forEach(record => {
+    const gene = record.y;
+    const mutationType = record.type;
+    if (!mutationCounts[gene]) {
+      mutationCounts[gene] = {};
+    }
+    if (!mutationCounts[gene][mutationType]) {
+      mutationCounts[gene][mutationType] = 0;
+    }
+    mutationCounts[gene][mutationType]++;
+  });
+  return mutationCounts;
 }
 
 /***/ }),
@@ -34545,6 +34564,8 @@ const data = [{
   y: "TP53",
   type: "missense"
 }];
+console.log((0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.summariseMutationsByGene)(data));
+// debugger;
 const xOrder = ["Patient1", "Patient2", "Patient3", "Patient4", "Patient5", "Patient6", "Patient7", "Patient8", "Patient9"];
 const tmb = [{
   x: "Patient1",
@@ -34719,6 +34740,15 @@ const marksOncoplot = data.map(d => ({
 const marksTMB = tmb.map(d => ({
   xpos: xScale(xAccessor(d)),
   ypos: yScaleTMB(d.tmb),
+  height: xLayout.tmbBarPosEndY - yScaleTMB(d.tmb),
+  // color: getColor(typeAccessor(d)),
+  // sample: xAccessor(d),
+  // gene: yAccessor(d)
+  tooltip: xAccessor(d) + "<br>" + "TMB: " + d.tmb
+}));
+const marksGeneBar = tmb.map(d => ({
+  // xpos: xScale(d.),
+  ypos: yScale(yAccessor(d)),
   height: xLayout.tmbBarPosEndY - yScaleTMB(d.tmb),
   // color: getColor(typeAccessor(d)),
   // sample: xAccessor(d),

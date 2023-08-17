@@ -293,3 +293,27 @@ export function xAxisLayout() {
     
     return my;
   }
+
+
+  // Data should be an array of objects with 3 columns. x (patient/sample IDs), y (gene/interval ids), type (mutation type)
+  
+  export function summariseMutationsByGene(data){
+    const mutationCounts = {};
+
+  data.forEach((record) => {
+    const gene = record.y;
+    const mutationType = record.type;
+
+    if (!mutationCounts[gene]) {
+      mutationCounts[gene] = {};
+    }
+
+    if (!mutationCounts[gene][mutationType]) {
+      mutationCounts[gene][mutationType] = 0;
+    }
+
+    mutationCounts[gene][mutationType]++;
+  });
+
+  return mutationCounts;
+  }

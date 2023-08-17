@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { scaleBandFacet, renderAxisX, renderAxisY, renderFacetsY } from "./scaleBandFacet.js";
-import { yAxisLayout, xAxisLayout } from "./utils.js";
+import { yAxisLayout, xAxisLayout, summariseMutationsByGene } from "./utils.js";
 
 const data = [
   { x: "Patient5", y: "BRCA2", type: "missense" },
@@ -32,6 +32,8 @@ const data = [
   { x: "Patient9", y: "TP53", type: "missense" },
 ];
 
+console.log(summariseMutationsByGene(data))
+// debugger;
 const xOrder = [
   "Patient1",
   "Patient2",
@@ -235,6 +237,18 @@ const marksTMB = tmb.map((d) => ({
   // gene: yAccessor(d)
   tooltip:  xAccessor(d) + "<br>" + "TMB: " + d.tmb ,
 }));
+
+const marksGeneBar = tmb.map((d) => ({
+  // xpos: xScale(d.),
+  ypos: yScale(yAccessor(d)),
+  height: xLayout.tmbBarPosEndY - yScaleTMB(d.tmb),
+  // color: getColor(typeAccessor(d)),
+  // sample: xAccessor(d),
+  // gene: yAccessor(d)
+  tooltip:  xAccessor(d) + "<br>" + "TMB: " + d.tmb ,
+}));
+
+
 
 // Render axes: Oncoplot
 renderAxisX(svg, xScale, xLayout.oncoplotPosEndY, showSampleNames, true, true);
