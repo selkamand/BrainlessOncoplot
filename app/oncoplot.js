@@ -1,11 +1,14 @@
 import * as d3 from "d3";
+import { count, stackedBarHorizontal } from "easy-stacked-bar";
+
 import {
   scaleBandFacet,
   renderAxisX,
   renderAxisY,
   renderFacetsY,
 } from "./scaleBandFacet.js";
-import { yAxisLayout, xAxisLayout, summariseMutationsByGene } from "./utils.js";
+
+import { yAxisLayout, xAxisLayout } from "./utils.js";
 
 const data = [
   { x: "Patient5", y: "BRCA2", type: "missense" },
@@ -37,7 +40,6 @@ const data = [
   { x: "Patient9", y: "TP53", type: "missense" },
 ];
 
-console.log(summariseMutationsByGene(data));
 // debugger;
 const xOrder = [
   "Patient1",
@@ -80,9 +82,13 @@ const yOrder = ["TP53", "RAD51", "BRCA1", "BRCA2"];
 const yFacets = ["TP53", "HRD", "HRD", "HRD"];
 
 // Create accessors
-const xAccessor = (d) => d.x;
-const yAccessor = (d) => d.y;
-const typeAccessor = (d) => d.type;
+const colNameX = "x";
+const colNameY = "y";
+const colNameType = "type";
+
+const xAccessor = (d) => d[colNameX];
+const yAccessor = (d) => d[colNameY];
+const typeAccessor = (d) => d[colNameType];
 
 // Tweakable Constants
 const xPadding = 0.05;
@@ -91,18 +97,21 @@ const yPadding = 0.05;
 const facetPaddingMultiplier = 5;
 
 // Colour
-const colors = new Map([
+// const colors = new Map([
+//   ["missense", "darkgreen"],
+//   ["nonsense", "black"],
+// ]);
+
+const colors = [
   ["missense", "darkgreen"],
   ["nonsense", "black"],
-]);
+];
 
-// Define function for getting colour (could use d3 scales to do this instead)
-const otherColor = "grey";
-const getColor = (val) => {
-  const col = colors.get(val);
-  //if undefined return "grey"
-  return typeof col === "undefined" ? otherColor : col;
-};
+// debugger;
+const colourScale = d3
+  .scaleOrdinal()
+  .domain(colors.map((d) => d[0]))
+  .range(colors.map((d) => d[1]));
 
 // Define Colour mappings to type
 
@@ -113,8 +122,8 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 
 // Other tweakables
-const geneBarPadding = 0;
-const geneBarWidth = 0;
+const geneBarPadding = 20;
+const geneBarWidth = 200;
 const tickLength = 6;
 const tickMarkAndTextPadding = 4;
 const fontsizeFacet = 18;
@@ -127,6 +136,10 @@ const clinicalRowHeight = 30;
 const clinicalRowPadding = 5;
 const clinicalRowNumber = 5;
 const showSampleNames = true;
+
+// Rect Appearance
+const oncoplotTileRectRx = 2;
+const tmbRectRx = 2;
 
 //! Constant
 // Tooltip
@@ -224,7 +237,7 @@ const yScaleTMB = d3
 const marksOncoplot = data.map((d) => ({
   xpos: xScale(xAccessor(d)),
   ypos: yScale(yAccessor(d)),
-  color: getColor(typeAccessor(d)),
+  color: colourScale(typeAccessor(d)),
   // sample: xAccessor(d),
   // gene: yAccessor(d)
   tooltip: [xAccessor(d), yAccessor(d)].join(" - "),
@@ -286,6 +299,7 @@ svg
   .attr("y", (d) => d.ypos)
   .attr("width", xScale.bandwidth)
   .attr("height", (d) => d.height)
+  .attr("rx", tmbRectRx)
   .on("mousemove", mousemove)
   .on("mouseleave", mouseleave);
 
@@ -305,7 +319,7 @@ svg
   .attr("height", yScale.bandwidth)
   .attr("fill", (d) => d.color)
   .attr("originalColor", (d) => d.color)
-  .attr("rx", 15)
+  .attr("rx", oncoplotTileRectRx)
   // .on("mouseover", mouseover)
   .on("mousemove", mousemove)
   .on("mouseleave", mouseleave);
@@ -316,3 +330,31 @@ svg.selectAll(".y-axis-tick-text").style("font-size", fontsizeY + "px");
 svg.selectAll(".x-axis-tick-text").style("font-size", fontsizeX + "px");
 
 svg.selectAll(".facet-text").style("font-size", fontsizeFacet + "px");
+
+//! Render ggplot
+
+if (colNameType != null) {
+  const data_counted = count(data, colNameY, colNameType);
+
+  // debugger;
+  // console.log(yLayout.geneBarPosX);
+
+  const stackedBar = stackedBarHorizontal()
+    .data(data_counted)
+    .yScale(yScale)
+    .rectSecondaryClass("genebar-rect")
+    .hideAxisY()
+    .hideAxisX()
+    .colorScale(colourScale)
+    .positionTopLeft([yLayout.geneBarPosStartX, xLayout.oncoplotPosStartY])
+    .positionBottomRight([yLayout.geneBarPosEndX, xLayout.oncoplotPosEndY])
+    // .mouseOverFunction(mouseover)
+    .mouseLeaveFunction(mouseleave)
+    .mouseMoveFunction(mousemove);
+
+  // .positionTopLeft([xLayout.geneBarPosX, yLayout.oncoplotPosStartY])
+  // .positionBottomRight([window.innerWidth, yLayout.oncoplotPosEndY]);
+
+  console.log(stackedBar);
+  stackedBar(svg);
+}

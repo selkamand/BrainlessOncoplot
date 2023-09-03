@@ -385,7 +385,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /**
  * Calculates the maximum number of characters in an array of strings.
- * 
+ *
  * @param {Array} strings An array of strings.
  * @returns {number} The maximum number of characters in the array of strings.
  */
@@ -403,7 +403,7 @@ function maxCharacters(strings) {
 
 /**
  * Returns the string with the greatest length from an array of strings.
- * 
+ *
  * @param {Array} arr An array of strings.
  * @returns {string} The string with the greatest length.
  */
@@ -419,7 +419,7 @@ function longestString(arr) {
 
 /**
  * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
- * 
+ *
  * @param {String} text The text to be rendered.
  * @param {String} font The CSS font descriptor that text is to be rendered with (e.g. "bold 14px verdana").
  * @returns {number} The width of the given text in pixels.
@@ -436,7 +436,7 @@ function getTextWidth(text, font) {
 
 /**
  * Retrieves the computed CSS style property for a given element.
- * 
+ *
  * @param {Element} element The HTML element.
  * @param {String} prop The CSS property to retrieve.
  * @returns {String} The computed CSS style property.
@@ -447,14 +447,14 @@ function getCssStyle(element, prop) {
 
 /**
  * Retrieves the font style of a canvas element.
- * 
+ *
  * @param {Element} el The canvas element.
  * @returns {String} The font style of the canvas element.
  */
 function getCanvasFont(el) {
-  const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
-  const fontSize = getCssStyle(el, 'font-size') || '16px';
-  const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
+  const fontWeight = getCssStyle(el, "font-weight") || "normal";
+  const fontSize = getCssStyle(el, "font-size") || "16px";
+  const fontFamily = getCssStyle(el, "font-family") || "Times New Roman";
   return `${fontWeight} ${fontSize} ${fontFamily}`;
 }
 
@@ -509,14 +509,14 @@ function yAxisLayout() {
     return arguments.length ? (fontSizeDomain = _, my) : fontSizeDomain;
   };
   my.computeLayout = function () {
-    if (margin === undefined) throw new Error('margin is undefined');
-    if (windowWidth === undefined) throw new Error('windowWidth is undefined');
-    if (geneBarPadding === undefined) throw new Error('geneBarPadding is undefined');
-    if (geneBarWidth === undefined) throw new Error('geneBarWidth is undefined');
-    if (tickMarkAndTextPadding === undefined) throw new Error('tickMarkAndTextPadding is undefined');
-    if (tickLength === undefined) throw new Error('tickLength is undefined');
-    if (facets === undefined) throw new Error('facets is undefined');
-    if (domain === undefined) throw new Error('domain is undefined');
+    if (margin === undefined) throw new Error("margin is undefined");
+    if (windowWidth === undefined) throw new Error("windowWidth is undefined");
+    if (geneBarPadding === undefined) throw new Error("geneBarPadding is undefined");
+    if (geneBarWidth === undefined) throw new Error("geneBarWidth is undefined");
+    if (tickMarkAndTextPadding === undefined) throw new Error("tickMarkAndTextPadding is undefined");
+    if (tickLength === undefined) throw new Error("tickLength is undefined");
+    if (facets === undefined) throw new Error("facets is undefined");
+    if (domain === undefined) throw new Error("domain is undefined");
 
     // const leftMargin = margin.left
     const tickWidth = tickLength + tickMarkAndTextPadding;
@@ -534,7 +534,8 @@ function yAxisLayout() {
     metrics.oncoplotPosStartX = margin.left + metrics.facetWidth + metrics.yTextAndTickWidth;
     metrics.oncoplotWidth = windowWidth - margin.left - margin.right - metrics.facetWidth - metrics.yTextAndTickWidth - geneBarWidth - geneBarPadding;
     metrics.oncoplotPosEndX = metrics.oncoplotPosStartX + metrics.oncoplotWidth;
-    metrics.geneBarPosX = metrics.oncoplotPosStartX + metrics.oncoplotWidth + geneBarPadding;
+    metrics.geneBarPosStartX = metrics.oncoplotPosStartX + metrics.oncoplotWidth + geneBarPadding;
+    metrics.geneBarPosEndX = windowWidth - margin.right;
     return metrics;
   };
   return my;
@@ -602,13 +603,13 @@ function xAxisLayout() {
   };
   my.computeLayout = function () {
     // Ensure all variables used in this function are defined
-    if (margin === undefined) throw new Error('margin is undefined');
-    if (windowHeight === undefined) throw new Error('windowHeight is undefined');
-    if (tmbBarPadding === undefined) throw new Error('tmbBarPadding is undefined');
-    if (tmbBarHeight === undefined) throw new Error('tmbBarHeight is undefined');
-    if (tickMarkAndTextPadding === undefined) throw new Error('tickMarkAndTextPadding is undefined');
-    if (tickLength === undefined) throw new Error('tickLength is undefined');
-    if (domain === undefined) throw new Error('domain is undefined');
+    if (margin === undefined) throw new Error("margin is undefined");
+    if (windowHeight === undefined) throw new Error("windowHeight is undefined");
+    if (tmbBarPadding === undefined) throw new Error("tmbBarPadding is undefined");
+    if (tmbBarHeight === undefined) throw new Error("tmbBarHeight is undefined");
+    if (tickMarkAndTextPadding === undefined) throw new Error("tickMarkAndTextPadding is undefined");
+    if (tickLength === undefined) throw new Error("tickLength is undefined");
+    if (domain === undefined) throw new Error("domain is undefined");
 
     // Calculate the maximum number of characters in domain (sample Names)
     const maxCharactersDomain = maxCharacters(domain);
@@ -650,6 +651,590 @@ function summariseMutationsByGene(data) {
   });
   return mutationCounts;
 }
+
+/***/ }),
+
+/***/ "./node_modules/easy-stacked-bar/src/index.js":
+/*!****************************************************!*\
+  !*** ./node_modules/easy-stacked-bar/src/index.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   count: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_1__.count),
+/* harmony export */   dputJS: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_1__.dputJS),
+/* harmony export */   stackedBarHorizontal: () => (/* reexport safe */ _stackedBar_js__WEBPACK_IMPORTED_MODULE_0__.stackedBarHorizontal)
+/* harmony export */ });
+/* harmony import */ var _stackedBar_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./stackedBar.js */ "./node_modules/easy-stacked-bar/src/stackedBar.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils.js */ "./node_modules/easy-stacked-bar/src/utils.js");
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/easy-stacked-bar/src/stackedBar.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/easy-stacked-bar/src/stackedBar.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   stackedBarHorizontal: () => (/* binding */ stackedBarHorizontal)
+/* harmony export */ });
+/* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/src/index.js");
+/* harmony import */ var _utilsD3_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utilsD3.js */ "./node_modules/easy-stacked-bar/src/utilsD3.js");
+
+
+
+/**
+ * A function to create a stacked horizontal bar chart.
+ *
+ * See example for typical data input format (array of objects). Assumes the first property in each object represents the Y axis categories.
+ * All other properties should describe counts of each subcategory.
+ *
+ * @typedef {Object} StackedBarHorizontal
+ * @property {function} data - Sets the data for the chart.
+ * @property {function} pixelGapBetweenStacks - Sets the gap between stacked bars in pixels.
+ * @property {function} positionTopLeft - Sets the top left position of the chart relative to the top of the y-axis line.
+ * @property {function} positionBottomRight - Sets the bottom right position of the chart relative to the right of the x-axis line.
+ * @property {function} yScale - Sets a pre-computed yScale for the chart.
+ * @property {function} hideAxisX - Hides the x-axis of the chart.
+ * @property {function} showAxisX - Shows the x-axis of the chart.
+ * @property {function} hideAxisY - Hides the y-axis of the chart.
+ * @property {function} showAxisY - Shows the y-axis of the chart.
+ * @property {function} yTickSize - Sets the tick size for the y-axis.
+ * @property {function} yTickSizeOuter - Sets the outer tick size for the y-axis.
+ * @property {function} yTickPadding - Sets the tick padding for the y-axis.
+ * @property {function} fontSizeX - Sets the font size for the x-axis labels.
+ * @property {function} fontSizeY - Sets the font size for the y-axis labels.
+ * @property {function} cornerRadius - Sets the corner radius for the stacked bars.
+ * @property {function} mouseOverFunction - Sets the function to execute on mouseover event.
+ * @property {function} mouseMoveFunction - Sets the function to execute on mousemove event.
+ * @property {function} mouseLeaveFunction - Sets the function to execute on mouseleave event.
+ * @property {function} rectSecondaryClass - Sets secondary classes for rectangles that make up the stacked bars. E.g. set to 'chart1-rects' to add a secondary class that can be useful for making your hover-effects chart-specific.
+ * @returns {function} The main function for creating the chart.
+ *
+ * @example
+ *
+ * // Example dataset where category is 'gene' and subCategories are the mutation types ('missense' and 'nonsense')
+ * const data = [
+ *   {"gene": "BRCA1", "missense": 2, "nonsense": 2 },
+ *   {"gene": "TP53",  "missense": 2, "nonsense": 1 }
+ * ]
+ *
+ *
+ * const chart = stackedBarHorizontal()
+ *   .data(data) // Set the data
+ *   .positionTopLeft([50, 50]) // Set the top left position relative to the top of y-axis line
+ *   .positionBottomRight([800, 700]) // Set the bottom right position relative to the right of x-axis line
+ *   //.yScale(yScale) // Set a pre-computed yScale
+ *
+ * const svg = d3
+ *   .select("body")
+ *   .append("svg")
+ *   .attr("width", window.innerWidth)
+ *   .attr("height", window.innerHeight)
+ *   .call(chart) // Render the chart
+ */
+const stackedBarHorizontal = () => {
+  //! Properties
+  //? Read/Write
+  let data;
+  let yScale = null;
+  let hideAxisX = false;
+  let hideAxisY = false;
+  let yTickSize = 0;
+  let yTickSizeOuter = 0;
+  let yTickPadding = 0;
+  let ypadding = 0.2;
+  let positionTopLeft = [50, 50]; //Top left position (based on top left of y Axis line)
+  let positionBottomRight = [800, 700]; //bottom right position (based on bottom right of x axis line)
+  let pixelGapBetweenStacks = 2;
+  let colorScale = null;
+  let xScale = null;
+  let fontSizeX = 12;
+  let fontSizeY = 12;
+  let cornerRadius = 2;
+
+  // Functions Fired on Events
+  let mouseOverFunction = null;
+  let mouseMoveFunction = null;
+  let mouseLeaveFunction = null;
+
+  // Optional Additional Class
+  let rectSecondaryClass = "";
+
+  //? Read Only (computed only once my() is called)
+  let yAxisTextAndTickBuffer = 0; // How many pixels does the y axis text + tickmarks take up? Not used yet
+  let xAxisTextAndTickBuffer = 0; // How many pixels does the x axis text + tickmarks take up? Not used yet
+
+  //! Actual Rendering Function
+  const my = (selection) => {
+    //! Figure Out Categories
+    const categoryName = Object.keys(data[0])[0]; // Assume first column values should represent y axis bandscale values
+    const subCategoryNames = Object.keys(data[0]).slice(1); // Assume all but first column value represent categories to colour by
+
+    //! Calculate Domains and Ranges for Scales
+    const totals = calculateTotals(data);
+    const maxTotal = Math.max(...totals.map((d) => d.total));
+
+    const yAccessor = (d) => d[categoryName];
+    const yDomain = data.map(yAccessor);
+
+    const yRange = [positionTopLeft[1], positionBottomRight[1]];
+    const xRange = [positionTopLeft[0], positionBottomRight[0]];
+
+    //! Create Scales
+    //? User can supply their own scales, but if not, we have some sensible ones by default
+
+    if (xScale === null) {
+      xScale = d3__WEBPACK_IMPORTED_MODULE_0__.scaleLinear().domain([0, maxTotal]).range(xRange);
+    }
+
+    if (colorScale === null) {
+      colorScale = d3__WEBPACK_IMPORTED_MODULE_0__.scaleOrdinal()
+        .domain(subCategoryNames)
+        .range([
+          "#66c2a5",
+          "#fc8d62",
+          "#8da0cb",
+          "#e78ac3",
+          "#a6d854",
+          "#ffd92f",
+          "#e5c494",
+          "#b3b3b3",
+        ]);
+    }
+
+    //? Allow user to supply a pre-computed yScale. If none supplied create one
+    if (yScale === null) {
+      yScale = d3__WEBPACK_IMPORTED_MODULE_0__.scaleBand().domain(yDomain).range(yRange).padding(ypadding);
+    }
+
+    //! Create Stack
+    const stackGenerator = d3__WEBPACK_IMPORTED_MODULE_0__.stack().keys(subCategoryNames);
+    const stackedSeries = stackGenerator(data);
+
+    //! Reorder Stack
+    // Not Implemented Yet
+
+    //! Create Marks Array
+    const marks = [];
+    stackedSeries.map((d) => {
+      console.log(d);
+      d.map((dInner) =>
+        marks.push({
+          x: dInner[0],
+          width: dInner[1] - dInner[0],
+          y: dInner.data[categoryName],
+          xPixels: xScale(dInner[0]),
+          widthPixels:
+            xScale(dInner[1]) - xScale(dInner[0]) - pixelGapBetweenStacks,
+          yPixels: yScale(dInner.data[categoryName]),
+          heightPixels: yScale.bandwidth(),
+          tooltip:
+            dInner.data[categoryName] +
+            " > " +
+            d.key +
+            "<br>" +
+            "Count: " +
+            (dInner[1] - dInner[0]),
+          subCategory: d.key,
+          color: colorScale(d.key),
+        })
+      );
+    });
+
+    //! Create Parent Group
+    const chartGroup = selection
+      .selectAll(".stacked-bar")
+      .data([null])
+      .join("g")
+      .attr("class", "stacked-bar");
+
+    //! Render Stacked Bars
+    //rectClass
+    chartGroup
+      .selectAll(".stacked-bar-rect-group")
+      .data([0])
+      .join("g")
+      .attr("class", "stacked-bar-rect-group")
+      .selectAll(".stacked-rect")
+      .data(marks)
+      .join("rect")
+      .attr("class", `stacked-rect ${rectSecondaryClass}`)
+      .attr("fill", "grey")
+      .attr("stroke", "black")
+      .attr("x", (d) => d.xPixels)
+      .attr("y", (d) => d.yPixels)
+      .attr("width", (d) => d.widthPixels)
+      .attr("height", (d) => d.heightPixels)
+      .attr("fill", (d) => d.color)
+      .attr("stroke-width", 0)
+      .attr("rx", cornerRadius)
+      .on("mouseover", mouseOverFunction)
+      .on("mousemove", mouseMoveFunction)
+      .on("mouseleave", mouseLeaveFunction);
+
+    //! Create Axes
+    const yAxis = d3__WEBPACK_IMPORTED_MODULE_0__.axisLeft(yScale)
+      .tickSize(yTickSize)
+      .tickSizeOuter(yTickSizeOuter)
+      .tickPadding(yTickPadding);
+
+    const xAxis = d3__WEBPACK_IMPORTED_MODULE_0__.axisBottom(xScale);
+
+    //! Render Axes
+    if (!hideAxisY) {
+      chartGroup
+        .selectAll(".y-axis")
+        .data([null])
+        .join("g")
+        .attr("class", "y-axis")
+        .attr("transform", `translate(${positionTopLeft[0]}, 0)`)
+        .call(yAxis);
+    }
+
+    if (!hideAxisX) {
+      chartGroup
+        .selectAll(".x-axis")
+        .data([null])
+        .join("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0, ${positionBottomRight[1]})`)
+        .call(xAxis);
+    }
+
+    //! Enforce Axis Label Fontsize
+    chartGroup
+      .selectAll(".y-axis>.tick>text")
+      .style("font-size", fontSizeY + "px");
+    chartGroup
+      .selectAll(".x-axis>.tick>text")
+      .style("font-size", fontSizeX + "px");
+
+    // These aren't used yet
+    yAxisTextAndTickBuffer = (0,_utilsD3_js__WEBPACK_IMPORTED_MODULE_1__.computeAxisTextAndTickBuffer)(yAxis, fontSizeY);
+    xAxisTextAndTickBuffer = (0,_utilsD3_js__WEBPACK_IMPORTED_MODULE_1__.computeAxisTextAndTickBuffer)(xAxis, fontSizeX);
+
+    return chartGroup;
+  };
+
+  //! Getters / Setters
+  my.data = function (_) {
+    return arguments.length ? ((data = _), my) : data;
+  };
+
+  my.pixelGapBetweenStacks = function (_) {
+    return arguments.length
+      ? ((pixelGapBetweenStacks = _), my)
+      : pixelGapBetweenStacks;
+  };
+
+  my.positionBottomRight = function (_) {
+    return arguments.length
+      ? ((positionBottomRight = _), my)
+      : positionBottomRight;
+  };
+
+  my.positionTopLeft = function (_) {
+    return arguments.length ? ((positionTopLeft = _), my) : positionTopLeft;
+  };
+
+  my.positionBottomRight = function (_) {
+    return arguments.length
+      ? ((positionBottomRight = _), my)
+      : positionBottomRight;
+  };
+
+  // Scales
+  my.yScale = function (_) {
+    if (!arguments.length) return yScale;
+    yScale = _;
+    console.log("Premade yScale supplied to stackedBarHorizontal");
+    return my;
+  };
+
+  my.colorScale = function (_) {
+    return arguments.length ? ((colorScale = _), my) : colorScale;
+  };
+
+  my.xScale = function (_) {
+    return arguments.length ? ((xScale = _), my) : xScale;
+  };
+
+  // Axes
+  my.hideAxisX = function () {
+    hideAxisX = true;
+    return my;
+  };
+
+  my.showAxisX = function () {
+    hideAxisX = false;
+    return my;
+  };
+
+  my.hideAxisY = function () {
+    hideAxisY = true;
+    return my;
+  };
+
+  my.showAxisY = function () {
+    hideAxisY = false;
+    return my;
+  };
+
+  // Ticks
+  my.yTickSize = function (_) {
+    return arguments.length ? ((yTickSize = _), my) : yTickSize;
+  };
+
+  my.yTickSizeOuter = function (_) {
+    return arguments.length ? ((yTickSizeOuter = _), my) : yTickSizeOuter;
+  };
+
+  my.yTickPadding = function (_) {
+    return arguments.length ? ((yTickPadding = _), my) : yTickPadding;
+  };
+
+  // Fonts
+  my.fontSizeX = function (_) {
+    return arguments.length ? ((fontSizeX = _), my) : fontSizeX;
+  };
+
+  my.fontSizeY = function (_) {
+    return arguments.length ? ((fontSizeY = _), my) : fontSizeY;
+  };
+
+  // Buffers (read only)
+  my.yAxisTextAndTickBuffer = function () {
+    return yAxisTextAndTickBuffer;
+  };
+
+  my.xAxisTextAndTickBuffer = function () {
+    return xAxisTextAndTickBuffer;
+  };
+
+  // Rect paramaters
+  my.cornerRadius = function (_) {
+    return arguments.length ? ((cornerRadius = _), my) : cornerRadius;
+  };
+
+  // Event Functions
+  my.mouseOverFunction = function (_) {
+    return arguments.length ? ((mouseOverFunction = _), my) : mouseOverFunction;
+  };
+
+  my.mouseMoveFunction = function (_) {
+    return arguments.length ? ((mouseMoveFunction = _), my) : mouseMoveFunction;
+  };
+
+  my.mouseLeaveFunction = function (_) {
+    return arguments.length
+      ? ((mouseLeaveFunction = _), my)
+      : mouseLeaveFunction;
+  };
+
+  my.rectSecondaryClass = function (_) {
+    return arguments.length
+      ? ((rectSecondaryClass = _), my)
+      : rectSecondaryClass;
+  };
+
+  //return function for method chaining
+  return my;
+};
+
+function calculateTotals(data) {
+  return data.map((obj) => {
+    // Calculate the sum of all properties except the first
+    const total = Object.values(obj).reduce((sum, value, index) => {
+      if (index !== 0) {
+        // Skip the first column
+        return sum + value;
+      }
+      return sum;
+    }, 0);
+
+    // Create an array with the 'y' and 'total' properties
+    return { y: obj[Object.keys(data[0])[0]], total };
+  });
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/easy-stacked-bar/src/utils.js":
+/*!****************************************************!*\
+  !*** ./node_modules/easy-stacked-bar/src/utils.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   count: () => (/* binding */ count),
+/* harmony export */   dputJS: () => (/* binding */ dputJS)
+/* harmony export */ });
+/**
+ * Converts long data into wide count data format compatible with stacked barplot visualisations.
+ *
+ * @param {Array<Object>} data - The long data array to be converted.
+ * @param {string} yCategory - The key representing the y category.
+ * @param {string} ySubCategory - The key representing the y subcategory.
+ * @returns {Array<Object>} The converted wide data array.
+ *
+ * @example
+ * const longData = [
+ *   { x: "Patient1", gene: "BRCA1", type: "missense" },
+ *   { x: "Patient2", gene: "BRCA1", type: "missense" },
+ *   { x: "Patient3", gene: "BRCA1", type: "nonsense" },
+ *   { x: "Patient4", gene: "BRCA1", type: "nonsense" },
+ *   { x: "Patient5", gene: "TP53", type: "missense" },
+ *   { x: "Patient6", gene: "TP53", type: "missense" },
+ *   { x: "Patient6", gene: "TP53", type: "nonsense" }
+ * ];
+ * const dataCounts = count(longData, 'gene', 'type');
+ *
+ * console.log(dataCounts);
+ * // Output:
+ * // [
+ * //   {"gene": "BRCA1", "missense": 2, "nonsense": 2 },
+ * //   {"gene": "TP53",  "missense": 2, "nonsense": 1 }
+ * // ]
+ * //
+ */
+function count(data, yCategory, ySubCategory) {
+  if (yCategory === undefined || yCategory === null)
+    throw new Error("yCategory must be defined");
+
+  if (data === undefined || data === null)
+    throw new Error("data must be defined");
+
+  const distinctYValues = [...new Set(data.map((item) => item[yCategory]))];
+
+  const result = [];
+
+  distinctYValues.forEach((currentCategory) => {
+    if (ySubCategory) {
+      const yData = { [yCategory]: currentCategory };
+      // Get distinct ySubCategory values
+      const distinctSubCategories = [
+        ...new Set(data.map((item) => item[ySubCategory])),
+      ];
+
+      // Iterate through each distinct ySubCategory value
+      distinctSubCategories.forEach((currentSubCategory) => {
+        const count = data.filter(
+          (item) =>
+            item[yCategory] === currentCategory &&
+            item[ySubCategory] === currentSubCategory
+        ).length;
+
+        yData[currentSubCategory] = count;
+      });
+
+      result.push(yData);
+    } else {
+      const count = data.filter(
+        (item) => item[yCategory] === currentCategory
+      ).length;
+      result.push({ [yCategory]: currentCategory, count: count });
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Converts a JavaScript object to a formatted JSON string.
+ *
+ * @param {Object} object - The object to be converted to JSON.
+ * @returns {string} The formatted JSON string.
+ *
+ * @example
+ * const exampleObject = { key1: 'value1', key2: 'value2' };
+ * const jsonString = dputJS(exampleObject);
+ * console.log(jsonString);
+ */
+function dputJS(object) {
+  return JSON.stringify(object, null, 2);
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/easy-stacked-bar/src/utilsD3.js":
+/*!******************************************************!*\
+  !*** ./node_modules/easy-stacked-bar/src/utilsD3.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   computeAxisTextAndTickBuffer: () => (/* binding */ computeAxisTextAndTickBuffer),
+/* harmony export */   maxCharacters: () => (/* binding */ maxCharacters)
+/* harmony export */ });
+/**
+ * Computes an estimate of the number of pixels that the axis text and ticks take up.
+ *
+ * @param {d3.axis} axis The d3 axis for which to compute the estimate.
+ * @param {number} fontSize The font size in pixels for the axis text.
+ * @returns {number} The estimated number of pixels that the axis text and ticks occupy.
+ */
+function computeAxisTextAndTickBuffer(axis, fontSize) {
+  //! Assertions
+  if (axis === undefined || axis === null)
+    throw new Error("axis is a required argument and must be defined");
+
+  if (fontSize === undefined || fontSize === null)
+    throw new Error("fontSize is a required argument and must be defined");
+
+  //! Retrieve Key Metrics
+  const domain = axis.scale().domain();
+  const tickFormat = axis.tickFormat(); // formatter of ticks
+  const tickSize = axis.tickSize(); // Size of tick lines
+  const tickSizeOuter = axis.tickSizeOuter(); // Size of the square ends that
+  const tickPadding = axis.tickPadding(); // Padding between tick lines and axis text
+  const maxTickSize = Math.max([tickSize + tickPadding, tickSizeOuter]); // The larger value of (tickSize + tickPadding) & tickSizeOuter
+  let lengthOfLongestLabel = maxCharacters(domain);
+
+  //! Deal with edge cases
+  //? if tickValues is [] there are NO ticks or lables
+  const tickValues = axis.tickValues();
+  if (tickValues === []) return 0;
+
+  //? if tickFormat == "" there are NO labels but ticks remain
+  if (tickFormat === "") lengthOfLongestLabel = 0;
+
+  //! Compute the buffer
+  const axisTextAndTickBuffer = lengthOfLongestLabel * fontSize + maxTickSize;
+
+  //!  Return
+  return axisTextAndTickBuffer;
+}
+
+/**
+ * Calculates the maximum number of characters in an array of strings.
+ *
+ * @param {Array} strings An array of strings.
+ * @returns {number} The maximum number of characters in the array of strings.
+ */
+function maxCharacters(strings) {
+  if (!Array.isArray(strings) || strings.length === 0) {
+    return 0; // If the input is not an array or empty, return 0
+  }
+
+  const maxLength = strings.reduce((max, str) => {
+    const length = str.length;
+    return length > max ? length : max;
+  }, 0);
+
+  return maxLength;
+}
+
 
 /***/ }),
 
@@ -34450,8 +35035,10 @@ var __webpack_exports__ = {};
   \*************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/src/index.js");
-/* harmony import */ var _scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scaleBandFacet.js */ "./app/scaleBandFacet.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils.js */ "./app/utils.js");
+/* harmony import */ var easy_stacked_bar__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! easy-stacked-bar */ "./node_modules/easy-stacked-bar/src/index.js");
+/* harmony import */ var _scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scaleBandFacet.js */ "./app/scaleBandFacet.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils.js */ "./app/utils.js");
+
 
 
 
@@ -34564,7 +35151,7 @@ const data = [{
   y: "TP53",
   type: "missense"
 }];
-console.log((0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.summariseMutationsByGene)(data));
+
 // debugger;
 const xOrder = ["Patient1", "Patient2", "Patient3", "Patient4", "Patient5", "Patient6", "Patient7", "Patient8", "Patient9"];
 const tmb = [{
@@ -34595,6 +35182,8 @@ const tmb = [{
   x: "Patient9",
   tmb: 6.2
 }];
+
+//prettier-ignore
 const annotations = [{
   x: "Patient1",
   annotationType1: "Annotation A",
@@ -34641,16 +35230,16 @@ const annotations = [{
   annotationType2: "Annotation R",
   numericAnnotation: 7.1
 }];
-
-// Confidence level: high
-
 const yOrder = ["TP53", "RAD51", "BRCA1", "BRCA2"];
 const yFacets = ["TP53", "HRD", "HRD", "HRD"];
 
 // Create accessors
-const xAccessor = d => d.x;
-const yAccessor = d => d.y;
-const typeAccessor = d => d.type;
+const colNameX = "x";
+const colNameY = "y";
+const colNameType = "type";
+const xAccessor = d => d[colNameX];
+const yAccessor = d => d[colNameY];
+const typeAccessor = d => d[colNameType];
 
 // Tweakable Constants
 const xPadding = 0.05;
@@ -34659,15 +35248,15 @@ const yPadding = 0.05;
 const facetPaddingMultiplier = 5;
 
 // Colour
-const colors = new Map([["missense", "darkgreen"], ["nonsense", "black"]]);
+// const colors = new Map([
+//   ["missense", "darkgreen"],
+//   ["nonsense", "black"],
+// ]);
 
-// Define function for getting colour (could use d3 scales to do this instead)
-const otherColor = "grey";
-const getColor = val => {
-  const col = colors.get(val);
-  //if undefined return "grey"
-  return typeof col === "undefined" ? otherColor : col;
-};
+const colors = [["missense", "darkgreen"], ["nonsense", "black"]];
+
+// debugger;
+const colourScale = d3__WEBPACK_IMPORTED_MODULE_0__.scaleOrdinal().domain(colors.map(d => d[0])).range(colors.map(d => d[1]));
 
 // Define Colour mappings to type
 
@@ -34678,8 +35267,8 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 
 // Other tweakables
-const geneBarPadding = 0;
-const geneBarWidth = 0;
+const geneBarPadding = 20;
+const geneBarWidth = 200;
 const tickLength = 6;
 const tickMarkAndTextPadding = 4;
 const fontsizeFacet = 18;
@@ -34692,6 +35281,10 @@ const clinicalRowHeight = 30;
 const clinicalRowPadding = 5;
 const clinicalRowNumber = 5;
 const showSampleNames = true;
+
+// Rect Appearance
+const oncoplotTileRectRx = 2;
+const tmbRectRx = 2;
 
 //! Constant
 // Tooltip
@@ -34719,12 +35312,12 @@ const margin = {
 };
 
 // Create Layout Objects
-const yLayout = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.yAxisLayout)().facets(yFacets).domain(yOrder).margin(margin).windowWidth(width).geneBarPadding(geneBarPadding).geneBarWidth(geneBarWidth).tickMarkAndTextPadding(tickMarkAndTextPadding).tickLength(tickLength).fontSizeFacet(fontsizeFacet).fontSizeDomain(fontsizeY).computeLayout();
-const xLayout = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.xAxisLayout)().domain(xOrder).fontsizeX(fontsizeX).showSampleNames(showSampleNames).margin(margin).windowHeight(height).tmbBarPadding(tmbBarPadding).tmbBarHeight(tmbBarHeight).tickMarkAndTextPadding(tickMarkAndTextPadding).oncoplotClinicalPadding(oncoplotClinicalPadding).clinicalRowHeight(clinicalRowHeight).clinicalRowPadding(clinicalRowPadding).clinicalRowNumber(clinicalRowNumber).tickLength(tickLength).computeLayout();
+const yLayout = (0,_utils_js__WEBPACK_IMPORTED_MODULE_3__.yAxisLayout)().facets(yFacets).domain(yOrder).margin(margin).windowWidth(width).geneBarPadding(geneBarPadding).geneBarWidth(geneBarWidth).tickMarkAndTextPadding(tickMarkAndTextPadding).tickLength(tickLength).fontSizeFacet(fontsizeFacet).fontSizeDomain(fontsizeY).computeLayout();
+const xLayout = (0,_utils_js__WEBPACK_IMPORTED_MODULE_3__.xAxisLayout)().domain(xOrder).fontsizeX(fontsizeX).showSampleNames(showSampleNames).margin(margin).windowHeight(height).tmbBarPadding(tmbBarPadding).tmbBarHeight(tmbBarHeight).tickMarkAndTextPadding(tickMarkAndTextPadding).oncoplotClinicalPadding(oncoplotClinicalPadding).clinicalRowHeight(clinicalRowHeight).clinicalRowPadding(clinicalRowPadding).clinicalRowNumber(clinicalRowNumber).tickLength(tickLength).computeLayout();
 console.log(xLayout);
 console.log(yLayout);
-const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([xLayout.oncoplotPosStartY, xLayout.oncoplotPosEndY]).domain(yOrder).facet(yFacets).paddingInner(yPadding).facetPaddingMultiplier(facetPaddingMultiplier);
-const xScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.scaleBandFacet)().range([yLayout.oncoplotPosStartX, yLayout.oncoplotPosEndX]).domain(xOrder).paddingInner(xPadding).paddingOuter(xPaddingOuter);
+const yScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_2__.scaleBandFacet)().range([xLayout.oncoplotPosStartY, xLayout.oncoplotPosEndY]).domain(yOrder).facet(yFacets).paddingInner(yPadding).facetPaddingMultiplier(facetPaddingMultiplier);
+const xScale = (0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_2__.scaleBandFacet)().range([yLayout.oncoplotPosStartX, yLayout.oncoplotPosEndX]).domain(xOrder).paddingInner(xPadding).paddingOuter(xPaddingOuter);
 const yScaleTMB = d3__WEBPACK_IMPORTED_MODULE_0__.scaleLinear().range([xLayout.tmbBarPosEndY, xLayout.tmbBarPosStartY]).domain([0, d3__WEBPACK_IMPORTED_MODULE_0__.max(tmb.map(d => d.tmb))]);
 
 // ////////////////////////////////////////////////////////////////////////
@@ -34732,7 +35325,7 @@ const yScaleTMB = d3__WEBPACK_IMPORTED_MODULE_0__.scaleLinear().range([xLayout.t
 const marksOncoplot = data.map(d => ({
   xpos: xScale(xAccessor(d)),
   ypos: yScale(yAccessor(d)),
-  color: getColor(typeAccessor(d)),
+  color: colourScale(typeAccessor(d)),
   // sample: xAccessor(d),
   // gene: yAccessor(d)
   tooltip: [xAccessor(d), yAccessor(d)].join(" - ")
@@ -34757,31 +35350,46 @@ const marksGeneBar = tmb.map(d => ({
 }));
 
 // Render axes: Oncoplot
-(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisX)(svg, xScale, xLayout.oncoplotPosEndY, showSampleNames, true, true);
-(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_1__.renderAxisY)(svg, yScale, yLayout.oncoplotPosStartX, yLayout.facetWidth, yLayout.yTextAndTickWidth, true);
+(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_2__.renderAxisX)(svg, xScale, xLayout.oncoplotPosEndY, showSampleNames, true, true);
+(0,_scaleBandFacet_js__WEBPACK_IMPORTED_MODULE_2__.renderAxisY)(svg, yScale, yLayout.oncoplotPosStartX, yLayout.facetWidth, yLayout.yTextAndTickWidth, true);
 
 // Render axes: TMB
 const axisTMB = d3__WEBPACK_IMPORTED_MODULE_0__.axisLeft(yScaleTMB.nice(1)).ticks(1);
-svg.selectAll('.y-axis-tmb').data([null]).join('g').attr('class', 'y-axis-tmb')
+svg.selectAll(".y-axis-tmb").data([null]).join("g").attr("class", "y-axis-tmb")
 // .attr("transform", `translate(10, 10)`)
 .attr("transform", `translate(${yLayout.oncoplotPosStartX}, 0)`).call(axisTMB);
 
 // Render Marks: TMB
-svg.selectAll('.tmb-barplot').data([null]).join("g").attr('class', 'tmb-barplot').selectAll("rect").data(marksTMB).join("rect").attr("class", 'tmb-rect').attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", d => d.height).on("mousemove", mousemove).on("mouseleave", mouseleave);
+svg.selectAll(".tmb-barplot").data([null]).join("g").attr("class", "tmb-barplot").selectAll("rect").data(marksTMB).join("rect").attr("class", "tmb-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", d => d.height).attr("rx", tmbRectRx).on("mousemove", mousemove).on("mouseleave", mouseleave);
 
 // Render Marks: Oncoplot
-svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marksOncoplot).join("rect").attr("class", "oncoplot-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", 15)
+svg.selectAll(".oncoplot-tiles").data([null]).join("g").attr("class", "oncoplot-tiles").selectAll("rect").data(marksOncoplot).join("rect").attr("class", "oncoplot-rect").attr("x", d => d.xpos).attr("y", d => d.ypos).attr("width", xScale.bandwidth).attr("height", yScale.bandwidth).attr("fill", d => d.color).attr("originalColor", d => d.color).attr("rx", oncoplotTileRectRx)
 // .on("mouseover", mouseover)
 .on("mousemove", mousemove).on("mouseleave", mouseleave);
 
-// draw Oncoplot
-
-// Enforce fontsize
-
 // Font Size Enforcement
-svg.selectAll(".y-axis-tick-text").style('font-size', fontsizeY + 'px');
-svg.selectAll(".x-axis-tick-text").style('font-size', fontsizeX + 'px');
-svg.selectAll(".facet-text").style('font-size', fontsizeFacet + 'px');
+svg.selectAll(".y-axis-tick-text").style("font-size", fontsizeY + "px");
+svg.selectAll(".x-axis-tick-text").style("font-size", fontsizeX + "px");
+svg.selectAll(".facet-text").style("font-size", fontsizeFacet + "px");
+
+//! Render ggplot
+
+if (colNameType != null) {
+  const data_counted = (0,easy_stacked_bar__WEBPACK_IMPORTED_MODULE_1__.count)(data, colNameY, colNameType);
+
+  // debugger;
+  // console.log(yLayout.geneBarPosX);
+
+  const stackedBar = (0,easy_stacked_bar__WEBPACK_IMPORTED_MODULE_1__.stackedBarHorizontal)().data(data_counted).yScale(yScale).rectSecondaryClass("genebar-rect").hideAxisY().hideAxisX().colorScale(colourScale).positionTopLeft([yLayout.geneBarPosStartX, xLayout.oncoplotPosStartY]).positionBottomRight([yLayout.geneBarPosEndX, xLayout.oncoplotPosEndY])
+  // .mouseOverFunction(mouseover)
+  .mouseLeaveFunction(mouseleave).mouseMoveFunction(mousemove);
+
+  // .positionTopLeft([xLayout.geneBarPosX, yLayout.oncoplotPosStartY])
+  // .positionBottomRight([window.innerWidth, yLayout.oncoplotPosEndY]);
+
+  console.log(stackedBar);
+  stackedBar(svg);
+}
 })();
 
 /******/ })()

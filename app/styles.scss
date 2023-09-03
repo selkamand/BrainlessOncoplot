@@ -1,3 +1,6 @@
+$hover-stroke-thickness: 4px;
+$hover-accent-colour: #DA4567;
+
 .facet-text  {
     font-family: "Helvetica Neue", sans-serif;
     font-size: 20px;
@@ -25,13 +28,39 @@
   }
 
   .facet-rect:hover {
-   fill: #DA4567;
+   fill: $hover-accent-colour;
+   transform: scale(1.05)
   }
-  
+
+  .facet-rect{
+    transform-origin: center; /* or transform-origin: 50% */
+    transform-box: fill-box;
+    transition: all 0.1s;
+  }
+
+  .facet-text{
+    pointer-events: none;
+
+  }
+
+  /*effect-underline*/
+  .y-axis-tick-text:hover {
+    fill: $hover-accent-colour;
+    stroke: $hover-accent-colour;
+    transform: scale(1.2);
+    stroke-width: 1;
+  }
+  .y-axis-tick-text{
+    transform-origin: right; /* or transform-origin: 50% */
+    transform-box: fill-box;
+    transition: all 0.1s;
+  }
+
+
   .oncoplot-rect:hover{
     //fill: #DA4567;
     stroke:#1a0811;
-    stroke-width: 10px;
+    stroke-width: $hover-stroke-thickness;
     transform: scale(1.05)
   }
 
@@ -41,11 +70,33 @@
     transition: all 0.1s;
   }
 
-  .tmb-rect{
-    fill: #262424
+  .genebar-rect:hover{
+    //fill: #DA4567;
+    stroke:#1a0811;
+    stroke-width: $hover-stroke-thickness;
+    transform: scale(1.02)
   }
+  .genebar-rect{
+    transform-origin: center; /* or transform-origin: 50% */
+    transform-box: fill-box;
+    transition: all 0.1s;
+  }
+
+
+  // .tmb-rect{
+  //   fill: #262424
+  // }
   .tmb-rect:hover{
-    fill: #DA4567;
+    stroke:#1a0811;
+    stroke-width: $hover-stroke-thickness;
+    fill: $hover-accent-colour;
+    transform: scale(1.02);
+  }
+
+  .tmb-rect{
+    transform-origin: center; /* or transform-origin: 50% */
+    transform-box: fill-box;
+    transition: all 0.1s;
   }
 
   .tooltip {

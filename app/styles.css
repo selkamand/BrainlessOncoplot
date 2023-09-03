@@ -26,11 +26,36 @@
 
 .facet-rect:hover {
   fill: #DA4567;
+  transform: scale(1.05);
+}
+
+.facet-rect {
+  transform-origin: center; /* or transform-origin: 50% */
+  transform-box: fill-box;
+  transition: all 0.1s;
+}
+
+.facet-text {
+  pointer-events: none;
+}
+
+/*effect-underline*/
+.y-axis-tick-text:hover {
+  fill: #DA4567;
+  stroke: #DA4567;
+  transform: scale(1.2);
+  stroke-width: 1;
+}
+
+.y-axis-tick-text {
+  transform-origin: right; /* or transform-origin: 50% */
+  transform-box: fill-box;
+  transition: all 0.1s;
 }
 
 .oncoplot-rect:hover {
   stroke: #1a0811;
-  stroke-width: 10px;
+  stroke-width: 4px;
   transform: scale(1.05);
 }
 
@@ -40,12 +65,29 @@
   transition: all 0.1s;
 }
 
-.tmb-rect {
-  fill: #262424;
+.genebar-rect:hover {
+  stroke: #1a0811;
+  stroke-width: 4px;
+  transform: scale(1.02);
+}
+
+.genebar-rect {
+  transform-origin: center; /* or transform-origin: 50% */
+  transform-box: fill-box;
+  transition: all 0.1s;
 }
 
 .tmb-rect:hover {
+  stroke: #1a0811;
+  stroke-width: 4px;
   fill: #DA4567;
+  transform: scale(1.02);
+}
+
+.tmb-rect {
+  transform-origin: center; /* or transform-origin: 50% */
+  transform-box: fill-box;
+  transition: all 0.1s;
 }
 
 .tooltip {
